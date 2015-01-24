@@ -8,5 +8,7 @@
     <string name="button_send">Send</string>
     <string name="title_activity_display_message">My Message</string>
     <string name="hello_world">Hello world!</string>
+    <string name="default_ip">192.168.56.1</string>
+    <string name="edit_address">Enter server ip adrress</string>
 
 </resources>

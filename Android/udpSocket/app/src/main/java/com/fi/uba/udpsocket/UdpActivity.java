@@ -1,6 +1,5 @@
 package com.fi.uba.udpsocket;
 
-import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -8,12 +7,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 
 
 public class UdpActivity extends ActionBarActivity {
@@ -24,7 +17,6 @@ public class UdpActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_udp);
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -48,35 +40,22 @@ public class UdpActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
+
     /** Called when the user clicks the Send button */
     public void sendMessage(View view) {
         // Do something in response to button
 
         EditText editText = (EditText) findViewById(R.id.edit_message);
-        //String message = editText.getText().toString();
+        String message = editText.getText().toString();
 
         EditText portText = (EditText) findViewById(R.id.edit_port);
+        String port = portText.getText().toString();
 
-        int port = Integer.parseInt(portText.getText().toString());
-        try {
-            DatagramSocket s = new DatagramSocket();
-            InetAddress local  = InetAddress.getLocalHost();
-            int msg_lenght = editText.getText().toString().length();
-            byte []message = editText.getText().toString().getBytes();
-            DatagramPacket p = new DatagramPacket(message,msg_lenght,local,port);
-            s.send(p);
-        } catch (SocketException e) {
-            e.printStackTrace();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        EditText ipText = (EditText) findViewById(R.id.edit_address);
+        String ipAddress = ipText.getText().toString();
 
-        /*Intent intent = new Intent(this, DisplayMessageActivity.class);
-        EditText editText = (EditText) findViewById(R.id.edit_message);
-        String message = editText.getText().toString();
-        intent.putExtra(EXTRA_MESSAGE, message);
-        startActivity(intent);*/
+        ConnectSocketAsyncTask task = new ConnectSocketAsyncTask();
+        task.execute(new String [] {ipAddress, port, message});
+
     }
 }
