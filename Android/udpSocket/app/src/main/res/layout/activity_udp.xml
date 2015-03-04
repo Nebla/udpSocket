@@ -31,4 +31,16 @@
         android:text="@string/button_send"
         android:onClick="sendMessage"/>
 
+    <Button android:id="@+id/btnStartService"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/start_service"
+        android:onClick="startService"/>
+
+    <Button android:id="@+id/btnStopService"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/stop_service"
+        android:onClick="stopService" />
+
 </LinearLayout>

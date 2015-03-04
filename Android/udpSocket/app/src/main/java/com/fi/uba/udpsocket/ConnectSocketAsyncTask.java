@@ -1,10 +1,6 @@
 package com.fi.uba.udpsocket;
 
 import android.os.AsyncTask;
-import android.os.Bundle;
-import android.widget.TextView;
-
-import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.net.DatagramPacket;

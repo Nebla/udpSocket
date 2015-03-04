@@ -11,4 +11,7 @@
     <string name="default_ip">192.168.56.1</string>
     <string name="edit_address">Enter server ip adrress</string>
 
+    <string name="start_service">Start Service</string>
+    <string name="stop_service">Stop Service</string>
+
 </resources>
