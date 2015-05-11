@@ -14,10 +14,10 @@
         android:text="@string/default_ip"
         android:hint="@string/edit_address" />
 
-
     <EditText android:id="@+id/edit_port"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="@string/default_port"
         android:hint="@string/edit_port" />
 
     <EditText android:id="@+id/edit_message"
@@ -42,5 +42,12 @@
         android:layout_height="wrap_content"
         android:text="@string/stop_service"
         android:onClick="stopService" />
+
+    <TextClock android:id="@+id/clock"
+        android:format24Hour="yyyy-MM-dd hh:mm:ss"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textSize="20sp"/>
 
 </LinearLayout>
