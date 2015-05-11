@@ -1,7 +1,9 @@
 package com.fi.uba.udpsocket;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
+import java.io.Console;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -15,7 +17,6 @@ import java.net.UnknownHostException;
 public class ConnectSocketAsyncTask extends AsyncTask <String, Void, String> {
 
 
-
     public ConnectSocketAsyncTask() {
 
     }
@@ -24,11 +25,10 @@ public class ConnectSocketAsyncTask extends AsyncTask <String, Void, String> {
     protected String doInBackground(String... params) {
 
         String address = params[0];
-        int port = Integer.parseInt(params[1]);
-
         String message = params[2];
 
         try {
+            int port = Integer.parseInt(params[1]);
             DatagramSocket s = new DatagramSocket();
             InetAddress local  = InetAddress.getByName(address);
             int msg_lenght = message.length();
@@ -41,6 +41,8 @@ public class ConnectSocketAsyncTask extends AsyncTask <String, Void, String> {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (NumberFormatException e) {
+            Log.e("ConnectSocketAsyncTask", "Invalid port entered");
         }
 
         return message;

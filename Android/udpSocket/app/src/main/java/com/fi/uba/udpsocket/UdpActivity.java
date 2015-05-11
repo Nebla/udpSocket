@@ -6,10 +6,17 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.DigitalClock;
 import android.widget.EditText;
+
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 
 public class UdpActivity extends Activity {
     public final static String EXTRA_MESSAGE = "com.fi.uba.udpSocket.MESSAGE";
@@ -34,7 +41,6 @@ public class UdpActivity extends Activity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }
@@ -45,7 +51,6 @@ public class UdpActivity extends Activity {
 
     /** Called when the user clicks the Send button */
     public void sendMessage(View view) {
-        // Do something in response to button
 
         EditText editText = (EditText) findViewById(R.id.edit_message);
         String message = editText.getText().toString();
@@ -56,17 +61,33 @@ public class UdpActivity extends Activity {
         EditText ipText = (EditText) findViewById(R.id.edit_address);
         String ipAddress = ipText.getText().toString();
 
-        ConnectSocketAsyncTask task = new ConnectSocketAsyncTask();
-        task.execute(new String [] {ipAddress, port, message});
 
+        ConnectSocketAsyncTask task = new ConnectSocketAsyncTask();
+        task.execute(ipAddress, port, message);
     }
 
     public void startService(View view) {
         EditText portText = (EditText) findViewById(R.id.edit_port);
-        String port = portText.getText().toString();
+        String portString = portText.getText().toString();
+        int port;
+        try {
+            port = Integer.parseInt(portString);
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            Log.e("UdpActivity", "Invalid port number");
+            return;
+        }
 
         EditText ipText = (EditText) findViewById(R.id.edit_address);
         String ipAddress = ipText.getText().toString();
+        try {
+            InetAddress.getByName(ipAddress);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+            Log.e("UdpActivity", "Invalid ip address");
+            return;
+        }
+
 
         // Construct an intent that will execute the AlarmReceiver
         Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);

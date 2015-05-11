@@ -1,8 +1,12 @@
 package com.fi.uba.udpsocket;
 
+import android.app.AlarmManager;
 import android.app.IntentService;
 
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -20,7 +24,6 @@ public class UdpService extends IntentService {
     private String address;
     private  int port;
     private DatagramSocket socket;
-    private DatagramPacket packet;
 
     public UdpService() {
         super("UdpService");
@@ -28,21 +31,17 @@ public class UdpService extends IntentService {
 
     public void init () {
         try {
-            socket = new DatagramSocket();
-            InetAddress local  = InetAddress.getByName(address);
-            String messge = "";
-            packet = new DatagramPacket(messge.getBytes(),0,local,port);
+            this.socket = new DatagramSocket();
         } catch (SocketException e) {
             e.printStackTrace();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
+            this.cancelOnError("Socket creation socket exception");
         }
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         this.address = intent.getStringExtra("address");
-        this.port = Integer.parseInt(intent.getStringExtra("port"));
+        this.port = intent.getIntExtra("port", 0);
 
         this.init();
 
@@ -51,22 +50,42 @@ public class UdpService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+
         try {
-            Date currentDate = new Date();
-            String message = currentDate.toString();
+            if (!this.socket.isConnected()) {
+                InetAddress ipAddress  = InetAddress.getByName(address);
+                this.socket.connect(ipAddress,port);
+            }
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+            this.cancelOnError("Socket connect unknown host error");
+            return;
+        }
 
+        Date currentDate = new Date();
+        String message = currentDate.toString();
 
-            int msg_lenght = message.length();
-            byte []byteMessage = message.getBytes();
+        int msg_lenght = message.length();
+        byte []byteMessage = message.getBytes();
 
-            packet.setData(byteMessage);
-            packet.setLength(msg_lenght);
-
-            //InetAddress local  = InetAddress.getByName(address);
-            //DatagramPacket p = new DatagramPacket(byteMessage,msg_lenght,local,port);
+        try {
+            Log.d("UdpService", "Sending packet: "+message);
+            DatagramPacket packet = new DatagramPacket(byteMessage, msg_lenght);
             this.socket.send(packet);
         } catch (IOException e) {
             e.printStackTrace();
+            this.cancelOnError("IOException");
+        } catch (Exception e) {
+            e.printStackTrace();
+            this.cancelOnError("Unknown error");
         }
+    }
+
+    private void cancelOnError(String errorMessage) {
+        Log.e("UdpService", errorMessage);
+        Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
+        final PendingIntent pIntent = PendingIntent.getBroadcast(this, AlarmReceiver.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+        alarm.cancel(pIntent);
     }
 }
