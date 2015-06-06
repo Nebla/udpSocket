@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">UdpSocket</string>
+    <string name="app_name">TiX</string>
     <string name="action_settings">Settings</string>
     <string name="edit_message">Enter a message</string>
     <string name="button_send">Send</string>
@@ -13,13 +13,14 @@
     <string name="start_service">Start Service</string>
     <string name="stop_service">Stop Service</string>
     <string name="date_format"></string>
+
     <string name="title_activity_login">LoginActivity</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_create">CreateActivity</string>
 
-    <string name="username_placeholder">Username</string>
-    <string name="password_placeholder">Password</string>
+    <string name="username_placeholder">Email</string>
+    <string name="password_placeholder">Contraseña</string>
+    <string name="repeat_password_placeholder">Repetir Contraseña</string>
     <string name="button_login">Login</string>
-
-    <string name="tix_base_url">http://tix.innova-red.net:8080</string>
+    <string name="button_create_account">Create Account</string>
 
 </resources>

@@ -3,6 +3,7 @@ package com.fi.uba.udpsocket.login;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
@@ -12,7 +13,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.fi.uba.udpsocket.R;
 
@@ -45,6 +48,11 @@ public class LoginActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         this.setTitle("Proyecto TiX");
+
+        TextView usernameTextView = (TextView) findViewById(R.id.username_text);
+        TextView passwordTextView = (TextView) findViewById(R.id.password_text);
+        usernameTextView.setText("adrianmdu@gmail.com");
+        passwordTextView.setText("celeste6");
     }
 
     @Override
@@ -69,10 +77,23 @@ public class LoginActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    public void createAccount(View view) {
+        Intent intent = new Intent(this, CreateActivity.class);
+        startActivity(intent);
+
+        /*String baseUrl =  getResources().getString(R.string.tix_base_url);
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(baseUrl + "/" + createAccount));
+        startActivity(browserIntent);*/
+    }
+
     public void login(View view) {
 
         TextView usernameTextView = (TextView) findViewById(R.id.username_text);
         TextView passwordTextView = (TextView) findViewById(R.id.password_text);
+
+        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(usernameTextView.getWindowToken(), 0);
+        imm.hideSoftInputFromWindow(passwordTextView.getWindowToken(), 0);
 
         new LoginAsyncTask().execute(usernameTextView.getText().toString(), passwordTextView.getText().toString());
     }
@@ -80,9 +101,21 @@ public class LoginActivity extends ActionBarActivity {
     private void update(User user) {
         Log.i(LoginActivity.class.toString(), "Successsssss");
 
-        TextView resultTextView = (TextView) findViewById(R.id.json_response_text);
-        resultTextView.setText("Id: " + user.id + "\nInstallations " + TextUtils.join(", ", user.getInstallations()));
+        if (user != null) {
+            TextView resultTextView = (TextView) findViewById(R.id.json_response_text);
 
+            String userId = user.getId();
+            ArrayList<String> installations = user.getInstallations();
+
+            resultTextView.setText("Id: " + userId + "\nInstallations:\n " + TextUtils.join(", ", installations));
+        }
+        else {
+            Context context = getApplicationContext();
+            CharSequence text = "Usuario o contraseña invalidos";
+            int duration = Toast.LENGTH_SHORT;
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.show();
+        }
     }
 
     private class User {
@@ -104,7 +137,7 @@ public class LoginActivity extends ActionBarActivity {
     }
 
 
-    private class LoginAsyncTask extends AsyncTask<String, Void, Void> {
+    private class LoginAsyncTask extends AsyncTask<String, Void, User> {
 
         AndroidHttpClient httpClient = AndroidHttpClient.newInstance("");
 
@@ -112,7 +145,7 @@ public class LoginActivity extends ActionBarActivity {
         }
 
         @Override
-        protected Void doInBackground(String... params) {
+        protected User doInBackground(String... params) {
             Log.i(LoginAsyncTask.class.toString(), "Login for user: " + params[0]);
 
             String url = "http://tix.innova-red.net";
@@ -123,28 +156,23 @@ public class LoginActivity extends ActionBarActivity {
             User user = null;
             try {
                 user = httpClient.execute(httpRequest, responseHandler);
-
-            } catch (ClientProtocolException e) {
-                e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (IllegalStateException e) {
-                //This exception takes place when multiple httpRequest are send in a short (very) period of time
+                e.printStackTrace();
+            } catch (Exception e) {
                 e.printStackTrace();
             } finally {
                 if (httpClient != null)
                     httpClient.close();
             }
 
+            return user;
+        }
+
+        @Override
+        protected void onPostExecute(User user) {
             update(user);
-            //Intent broadcast = new Intent(ACTION_GET_POSIBLE_ADDRESSES);
-            //broadcast.putStringArrayListExtra(KEY_POSSIBLE_ADDRESSES, possibileAddress);
-            //Log.i(LoginAsyncTask.class.toString(), "Bradcasted...addresses");
-            //for(int i = 0; i < possibileAddress.size(); i++){
-            //    Log.i(GetLocationAsyncTask.class.toString(), possibileAddress.get(i));
-            //}
-            //mContext.sendBroadcast(broadcast);
-            return null;
         }
 
         private class JSONResponseHandler implements ResponseHandler<User> {
@@ -164,13 +192,20 @@ public class LoginActivity extends ActionBarActivity {
                 try {
                     JSONObject root = (JSONObject) new JSONTokener(JSONResponse).nextValue();
 
-                    userId = root.getString(ID_TAG);
-
-                    JSONArray jsonInstallations = root.getJSONArray(INSTALLATION_TAG );
-                    for(int i = 0; i < jsonInstallations.length(); i++){
-                        String installation = jsonInstallations.getString(i);
-                        installations.add(installation.split(": ")[1]);
+                    if (root.has(ID_TAG)) {
+                        userId = root.getString(ID_TAG);
+                    } else {
+                        return null;
                     }
+
+                    if (root.has(INSTALLATION_TAG)) {
+                        JSONArray jsonInstallations = root.getJSONArray(INSTALLATION_TAG );
+                        for(int i = 0; i < jsonInstallations.length(); i++){
+                            String installation = jsonInstallations.getString(i);
+                            installations.add(installation.split(": ")[1]);
+                        }
+                    }
+
                 } catch (JSONException e) {
                     Log.e(LoginAsyncTask.class.toString(), "Malformed json.");
                     e.printStackTrace();
