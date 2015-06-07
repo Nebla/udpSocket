@@ -78,12 +78,13 @@ public class LoginActivity extends ActionBarActivity {
     }
 
     public void createAccount(View view) {
-        Intent intent = new Intent(this, CreateActivity.class);
-        startActivity(intent);
+        /*Intent intent = new Intent(this, CreateActivity.class);
+        startActivity(intent);*/
 
-        /*String baseUrl =  getResources().getString(R.string.tix_base_url);
+        String baseUrl = getResources().getString(R.string.tix_base_url);
+        String createAccount = getResources().getString(R.string.tix_create_url);
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(baseUrl + "/" + createAccount));
-        startActivity(browserIntent);*/
+        startActivity(browserIntent);
     }
 
     public void login(View view) {

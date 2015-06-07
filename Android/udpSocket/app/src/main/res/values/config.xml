@@ -2,5 +2,6 @@
 <resources>
 
     <string name="tix_base_url">http://tix.innova-red.net</string>
+    <string name="tix_create_url">bin/account/register</string>
 
 </resources>
