@@ -15,15 +15,16 @@
     <string name="date_format"></string>
 
     <string name="title_activity_login">Login</string>
-    <string name="title_activity_create">Create Account</string>
-    <string name="title_activity_installations">Installations</string>
+    <string name="title_activity_create">Crear Cuenta</string>
+    <string name="title_activity_installations">Instalaciones</string>
 
     <string name="username_placeholder">Email</string>
     <string name="password_placeholder">Contraseña</string>
     <string name="repeat_password_placeholder">Repetir Contraseña</string>
     <string name="button_login">Login</string>
-    <string name="button_create_account">Create Account</string>
+    <string name="button_create_account">Crear Cuenta</string>
 
+    <string name="button_create_installation">Crear Instalación</string>
     <string name="new_installation_label">
         Seleccione un nombre para la nueva instalacion:
     </string>

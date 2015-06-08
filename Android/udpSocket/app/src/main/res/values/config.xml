@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="tix_base_url">http://tix.innova-red.net</string>
-    <string name="tix_create_url">bin/account/register</string>
-
+    <string name="tix_base_url">http://tix.innova-red.net/</string>
+    <string name="tix_login_account_url">bin/api/authenticate</string>
+    <string name="tix_create_account_url">bin/account/register</string>
+    <string name="tix_create_installation_url">bin/api/newInstallationPost</string>
 </resources>

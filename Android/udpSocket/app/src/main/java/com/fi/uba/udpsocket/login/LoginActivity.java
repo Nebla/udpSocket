@@ -86,8 +86,8 @@ public class LoginActivity extends ActionBarActivity {
         startActivity(intent);*/
 
         String baseUrl = getResources().getString(R.string.tix_base_url);
-        String createAccount = getResources().getString(R.string.tix_create_url);
-        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(baseUrl + "/" + createAccount));
+        String createAccount = getResources().getString(R.string.tix_create_account_url);
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(baseUrl + createAccount));
         startActivity(browserIntent);
     }
 
@@ -138,8 +138,9 @@ public class LoginActivity extends ActionBarActivity {
         protected User doInBackground(String... params) {
             Log.i(LoginAsyncTask.class.toString(), "Login for user: " + params[0]);
 
-            String url = "http://tix.innova-red.net";
-            url = url + "/bin/api/authenticate?name=" + params[0] + "&password=" + params[1];
+            String baseUrl = getResources().getString(R.string.tix_base_url);
+            String loginUrl = getResources().getString(R.string.tix_login_account_url);
+            String url = baseUrl + loginUrl + "?name=" + params[0] + "&password=" + params[1];
 
             HttpGet httpRequest = new HttpGet(url);
             JSONResponseHandler responseHandler = new JSONResponseHandler();
