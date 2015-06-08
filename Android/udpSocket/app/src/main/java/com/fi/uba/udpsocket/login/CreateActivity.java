@@ -15,8 +15,5 @@ public class CreateActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create);
         this.setTitle("Proyecto TiX");
-
     }
-
-
 }

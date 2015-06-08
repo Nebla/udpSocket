@@ -18,6 +18,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fi.uba.udpsocket.R;
+import com.fi.uba.udpsocket.domain.User;
+import com.fi.uba.udpsocket.installations.InstallationsActivity;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -43,6 +45,8 @@ import java.util.Map;
 
 public class LoginActivity extends ActionBarActivity {
 
+    public final static String USER_MESSAGE = "com.fi.uba.USER";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,7 +66,7 @@ public class LoginActivity extends ActionBarActivity {
         return false;
     }
 
-    @Override
+    /*@Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -75,7 +79,7 @@ public class LoginActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
+    }*/
 
     public void createAccount(View view) {
         /*Intent intent = new Intent(this, CreateActivity.class);
@@ -103,12 +107,16 @@ public class LoginActivity extends ActionBarActivity {
         Log.i(LoginActivity.class.toString(), "Successsssss");
 
         if (user != null) {
-            TextView resultTextView = (TextView) findViewById(R.id.json_response_text);
+            // If the login is successful we show the create installation screen,
 
-            String userId = user.getId();
-            ArrayList<String> installations = user.getInstallations();
+            Intent intent = new Intent(this, InstallationsActivity.class);
+            intent.putExtra(USER_MESSAGE, user);
+            startActivity(intent);
 
-            resultTextView.setText("Id: " + userId + "\nInstallations:\n " + TextUtils.join(", ", installations));
+            //TextView resultTextView = (TextView) findViewById(R.id.json_response_text);
+            //String userId = user.getId();
+            //ArrayList<String> installations = user.getInstallations();
+            //resultTextView.setText("Id: " + userId + "\nInstallations:\n " + TextUtils.join(", ", installations));
         }
         else {
             Context context = getApplicationContext();
@@ -118,25 +126,6 @@ public class LoginActivity extends ActionBarActivity {
             toast.show();
         }
     }
-
-    private class User {
-        private final String id;
-        private final ArrayList<String> installations;
-
-        public User(String id, ArrayList<String>installations) {
-            this.id = id;
-            this.installations = installations;
-        }
-
-        public String getId() {
-            return this.id;
-        }
-
-        public  ArrayList<String> getInstallations() {
-            return this.installations;
-        }
-    }
-
 
     private class LoginAsyncTask extends AsyncTask<String, Void, User> {
 
