@@ -1,4 +1,4 @@
-package com.fi.uba.udpsocket.login;
+package com.fi.uba.udpsocket.screens.login;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;

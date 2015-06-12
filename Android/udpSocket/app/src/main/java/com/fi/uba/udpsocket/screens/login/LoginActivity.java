@@ -1,6 +1,5 @@
-package com.fi.uba.udpsocket.login;
+package com.fi.uba.udpsocket.screens.login;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -8,10 +7,8 @@ import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
@@ -19,28 +16,20 @@ import android.widget.Toast;
 
 import com.fi.uba.udpsocket.R;
 import com.fi.uba.udpsocket.domain.User;
-import com.fi.uba.udpsocket.installations.InstallationsActivity;
+import com.fi.uba.udpsocket.screens.installations.InstallationsActivity;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.BasicResponseHandler;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.Map;
 
 
 public class LoginActivity extends ActionBarActivity {
@@ -158,7 +147,12 @@ public class LoginActivity extends ActionBarActivity {
                     httpClient.close();
             }
 
-            return user;
+            if (user != null) {
+                return new User(user.getId(), params[1], user.getInstallations());
+            }
+            else {
+                return null;
+            }
         }
 
         @Override

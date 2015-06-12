@@ -1,4 +1,4 @@
-package com.fi.uba.udpsocket.installations;
+package com.fi.uba.udpsocket.screens.installations;
 
 import android.content.Context;
 import android.content.Intent;
@@ -14,14 +14,17 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.fi.uba.udpsocket.utils.KeyManager;
 import com.fi.uba.udpsocket.R;
 import com.fi.uba.udpsocket.domain.User;
-import com.fi.uba.udpsocket.login.LoginActivity;
+import com.fi.uba.udpsocket.screens.login.LoginActivity;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,7 +32,7 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.io.UnsupportedEncodingException;
 
 public class InstallationsActivity extends ActionBarActivity {
 
@@ -88,6 +91,10 @@ public class InstallationsActivity extends ActionBarActivity {
         }
     }
 
+    private void showResult(String newInstallationName) {
+
+    }
+
     private void showError(String errorMessage) {
         Context context = getApplicationContext();
         int duration = Toast.LENGTH_SHORT;
@@ -96,14 +103,12 @@ public class InstallationsActivity extends ActionBarActivity {
     }
 
     private void createNewInstallation(String newInstallationName) {
-        new CreateInstallationAsyncTask().execute(newInstallationName);
 
-        /*publicKeyFile = open(installDirUnix + 'tix_key.pub','r')
-        publicKey = rsa.PublicKey.load_pkcs1(publicKeyFile.read())
+        KeyManager keyManager = new KeyManager(this.getApplicationContext());
+        keyManager.generateKeys(newInstallationName);
+        String encodedPublicKey = keyManager.getBase64EncodedPublicKey(newInstallationName);
 
-        # publicEncryptionKey = keygeneration.generateKeyPair(installDirUnix+'tix_key.priv',installDirUnix+'tix_key.pub')
-        payload = {'user_id': str(globalUserId), 'password': globalUserPassword, 'installation_name': self.text, 'encryption_key': base64.b64encode(publicKey.save_pkcs1(format='PEM'))}
-        headers = {'content-type': 'application/json'}*/
+        new CreateInstallationAsyncTask().execute(user.getId(), user.getPassword(), newInstallationName, encodedPublicKey);
     }
 
 
@@ -117,12 +122,34 @@ public class InstallationsActivity extends ActionBarActivity {
         @Override
         protected String doInBackground(String... params) {
             Log.i(CreateInstallationAsyncTask.class.toString(), "Create new installation for user: " + params[0]);
-            String result = "";
-            String url = "";
-            HttpGet httpRequest = new HttpGet(url);
-            JSONResponseHandler responseHandler = new JSONResponseHandler();
+
+            String userId = params[0];
+            String userPassword = params[1];
+            String installationName = params[2];
+            String publicKey = params[3];
+
+            String result = null;
+
+            String baseUrl = getResources().getString(R.string.tix_base_url);
+            String createUrl = getResources().getString(R.string.tix_create_installation_url);
+
+            String url = baseUrl + createUrl;
+            HttpPost httpPostRequest = new HttpPost(url);
+            httpPostRequest.setHeader("Accept", "application/json");
+            httpPostRequest.setHeader("content-type", "application/json");
+
             try {
-                result = httpClient.execute(httpRequest, responseHandler);
+                JSONObject object = new JSONObject();
+
+                object.put("user_id", userId);
+                object.put("password", userPassword);
+                object.put("installation_name", installationName);
+                object.put("encryption_key", publicKey);
+
+                String postBody = object.toString();
+                httpPostRequest.setEntity(new StringEntity(postBody, "UTF8"));
+                JSONResponseHandler responseHandler = new JSONResponseHandler();
+                result = httpClient.execute(httpPostRequest, responseHandler);
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (IllegalStateException e) {
@@ -137,15 +164,35 @@ public class InstallationsActivity extends ActionBarActivity {
             return result;
         }
 
+        @Override
+        protected void onPostExecute(String installationName) {
+            showResult(installationName);
+        }
 
         private class JSONResponseHandler implements ResponseHandler<String> {
 
-            private final String ID_TAG = "id";
             private final String INSTALLATION_TAG = "installations";
 
             @Override
             public String handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
-                return "";
+
+                String installationName = null;
+
+                // Server response
+                String JSONResponse = new BasicResponseHandler().handleResponse(response);
+
+                try {
+                    /*{"id":50,"installations":"Installation: prueba4","name":"adrianmdu@gmail.com"}*/
+                    JSONObject root = (JSONObject) new JSONTokener(JSONResponse).nextValue();
+
+                    if (root.has(INSTALLATION_TAG)) {
+                        installationName = root.getString(INSTALLATION_TAG);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                return installationName;
             }
         }
     }

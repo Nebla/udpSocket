@@ -11,7 +11,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".login.LoginActivity"
+            android:name=".screens.login.LoginActivity"
             android:label="@string/title_activity_login" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -20,7 +20,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".login.CreateActivity"
+            android:name=".screens.login.CreateActivity"
             android:label="@string/title_activity_create" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -48,7 +48,7 @@
         </receiver>
 
         <activity
-            android:name=".installations.InstallationsActivity"
+            android:name=".screens.installations.InstallationsActivity"
             android:label="@string/title_activity_installations" >
         </activity>
     </application>
