@@ -4,42 +4,27 @@ package com.fi.uba.udpsocket.utils;
  * Created by adrian on 08/06/15.
  */
 
+import android.app.Activity;
+import android.content.Context;
+import android.util.Base64;
+
+import org.spongycastle.util.io.pem.PemObject;
+import org.spongycastle.util.io.pem.PemWriter;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.math.BigInteger;
-import java.security.InvalidAlgorithmParameterException;
+import java.io.StringWriter;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.SecureRandom;
-import java.security.UnrecoverableEntryException;
-import java.security.cert.CertificateException;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.Calendar;
-
-import android.app.Activity;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.security.KeyPairGeneratorSpec;
-import android.util.Base64;
-import android.util.Log;
-
-import javax.security.auth.x500.X500Principal;
 
 public class KeyManager extends Activity {
 
@@ -73,10 +58,27 @@ public class KeyManager extends Activity {
         return pubKey;
     }
 
-    public String getBase64EncodedPublicKey (String alias) {
+    public String getPemPublicKey (String alias) {
         PublicKey publicKey = this.getPublicKey(alias);
         byte[] publicKeyBytes = publicKey.getEncoded();
-        return Base64.encodeToString(publicKeyBytes, Base64.DEFAULT);
+
+        PemObject pemObject = new PemObject("RSA PUBLIC KEY", publicKeyBytes);
+        StringWriter stringWriter = new StringWriter();
+        PemWriter pemWriter = new PemWriter(stringWriter);
+        try {
+            pemWriter.writeObject(pemObject);
+            pemWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        String pemString = stringWriter.toString();
+        return pemString;
+    }
+
+    public String getBase64EncodedPemPublicKey (String alias) {
+        String pemPublicKey = this.getPemPublicKey(alias);
+        return Base64.encodeToString(pemPublicKey.getBytes(), Base64.NO_WRAP | Base64.NO_PADDING | Base64.URL_SAFE);
     }
 
     public PrivateKey getPrivateKey (String alias) {
@@ -103,40 +105,30 @@ public class KeyManager extends Activity {
         return privKey;
     }
 
-    public String getBase64EncodedPrivateKey (String alias) {
-        PrivateKey privateKey = this.getPrivateKey(alias);
-        byte[] privateKeyBytes = privateKey.getEncoded();
-        return new String(Base64.encode(privateKeyBytes, Base64.DEFAULT));
-    }
-
     public void generateKeys(String alias) {
 
-        File file = new File(alias);
-        if (! file.exists()) {
-            try {
-                KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-                kpg.initialize(4096);
-                KeyPair keyPair = kpg.generateKeyPair();
+        try {
+            KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+            kpg.initialize(64);
+            KeyPair keyPair = kpg.generateKeyPair();
 
-                // Save the private key
-                String privKeyFile = alias;
-                DataOutputStream out = new DataOutputStream(this.context.openFileOutput(privKeyFile, Context.MODE_PRIVATE));
-                byte[] data = keyPair.getPrivate().getEncoded();
-                out.write(data);
-                out.close();
+            // Save the private key
+            DataOutputStream out = new DataOutputStream(this.context.openFileOutput(alias, Context.MODE_PRIVATE));
+            byte[] data = keyPair.getPrivate().getEncoded();
+            out.write(data);
+            out.close();
 
-                // Save the public key
-                String pubKeyFile = alias + ".pub";
-                out = new DataOutputStream(this.context.openFileOutput(pubKeyFile, Context.MODE_PRIVATE));
-                data = keyPair.getPublic().getEncoded();
-                out.write(data);
-                out.close();
+            // Save the public key
+            String pubKeyFile = alias + ".pub";
+            out = new DataOutputStream(this.context.openFileOutput(pubKeyFile, Context.MODE_PRIVATE));
+            data = keyPair.getPublic().getEncoded();
+            out.write(data);
+            out.close();
 
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
         }
     }
 

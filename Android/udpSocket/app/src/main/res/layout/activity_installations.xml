@@ -24,6 +24,11 @@
         android:onClick="createInstallation"/>
 
     <TextView
+        android:id="@+id/test_result"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/current_installations_label"/>
@@ -32,6 +37,5 @@
         android:id="@+id/installations_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
-
 
 </LinearLayout>

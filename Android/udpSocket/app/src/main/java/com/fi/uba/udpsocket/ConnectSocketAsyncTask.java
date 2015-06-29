@@ -3,7 +3,6 @@ package com.fi.uba.udpsocket;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import java.io.Console;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;

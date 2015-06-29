@@ -4,35 +4,41 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import com.fi.uba.udpsocket.utils.KeyManager;
 import com.fi.uba.udpsocket.R;
 import com.fi.uba.udpsocket.domain.User;
 import com.fi.uba.udpsocket.screens.login.LoginActivity;
+import com.fi.uba.udpsocket.utils.KeyManager;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicResponseHandler;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+
 
 public class InstallationsActivity extends ActionBarActivity {
 
@@ -87,8 +93,61 @@ public class InstallationsActivity extends ActionBarActivity {
             else {
                 // If the name isn't empty neither repeated, we create a new installation
                 createNewInstallation(newInstallationName);
+                testKeys(newInstallationName);
+
             }
         }
+    }
+
+    public void testKeys (String newInstallationName) {
+        EditText text = (EditText) findViewById(R.id.installation_name_text);
+        String testString = text.getText().toString();
+
+        KeyManager keyManager = new KeyManager(this.getApplicationContext());
+
+        byte[] encryptedBytes = null;
+        Cipher cipher = null;
+        try {
+            cipher = Cipher.getInstance("RSA");
+            cipher.init(Cipher.ENCRYPT_MODE, keyManager.getPublicKey(newInstallationName));
+            encryptedBytes = cipher.doFinal(testString.getBytes());
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        } catch (BadPaddingException e) {
+            e.printStackTrace();
+        } catch (IllegalBlockSizeException e) {
+            e.printStackTrace();
+        }
+
+        byte[] result = new byte[0];
+        Cipher decipher = null;
+        try {
+            decipher = Cipher.getInstance("RSA");
+            decipher.init(Cipher.DECRYPT_MODE, keyManager.getPrivateKey(newInstallationName));
+            result = decipher.doFinal(encryptedBytes);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        } catch (BadPaddingException e) {
+            e.printStackTrace();
+        } catch (IllegalBlockSizeException e) {
+            e.printStackTrace();
+        }
+
+        TextView resultTextView = (TextView) findViewById(R.id.test_result);
+
+        String finalResult = "Encoded:\n"+new String(encryptedBytes) +
+                            "\nDecoded:\n"+new String(result)+
+                            "\nPublic Key:\n"+ keyManager.getPemPublicKey(newInstallationName) +
+                            "\nEncoded public key:\n"+keyManager.getBase64EncodedPemPublicKey(newInstallationName);
+        resultTextView.setText(finalResult);
     }
 
     private void showResult(String newInstallationName) {
@@ -106,7 +165,7 @@ public class InstallationsActivity extends ActionBarActivity {
 
         KeyManager keyManager = new KeyManager(this.getApplicationContext());
         keyManager.generateKeys(newInstallationName);
-        String encodedPublicKey = keyManager.getBase64EncodedPublicKey(newInstallationName);
+        String encodedPublicKey = keyManager.getBase64EncodedPemPublicKey(newInstallationName);
 
         new CreateInstallationAsyncTask().execute(user.getId(), user.getPassword(), newInstallationName, encodedPublicKey);
     }
