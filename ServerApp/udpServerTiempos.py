@@ -45,7 +45,7 @@ sys.path.append('/home/pfitba/tix_production/ip_to_as/')
 import logging
 
 if len(sys.argv) < 3:
-    logFilePath = '/var/tmp/tixUDPServerTiempos.log'
+    logFilePath = '../var/tmp/tixUDPServerTiempos.log'
 else:
     logFilePath = sys.argv[2]
 
@@ -386,8 +386,11 @@ class ThreadingUDPRequestHandler(SocketServer.BaseRequestHandler):
                                 print "---- SUCCESSFUL FINISH"
                     else:
                         logger.debug("No se ha podido obtener la client_data para la siguiente pubKey= " + str(client_pub_key_str_b64))
-        except:
+                else:
+                    print("Problema con la clave")
+        except Exception, e:
             print("Error 2")
+            print(e)
             #rollbar.report_exc_info()
 
 class ThreadingUDPServer(SocketServer.ThreadingMixIn, SocketServer.UDPServer):

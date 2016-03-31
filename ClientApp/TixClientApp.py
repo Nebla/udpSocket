@@ -18,7 +18,7 @@ import time, datetime, os
 
 # Tomo data del archivo de configuracion
 config = ConfigParser.ConfigParser()
-config.read('/etc/TIX/app/udpclienttiempos.cfg')
+config.read('./udpclienttiempos.cfg')
 installDirUnix = config.get("UDPClient", "installDirUnix")
 HOST = config.get("UDPClient", "host")
 PORT = config.getint("UDPClient", "port")
@@ -26,7 +26,7 @@ TEST_HOST = config.get("UDPClient", "TEST_host")
 TEST_PORT = config.getint("UDPClient", "TEST_port")
 TEST2_HOST = config.get("UDPClient", "TEST2_host")
 TEST2_PORT = config.getint("UDPClient", "TEST2_port")
-modo_debug = config.getint("UDPClient", "modo_debug")
+modo_debug = config.get("UDPClient", "modo_debug")
 
 def ts_filename():
     return time.time()
@@ -88,19 +88,21 @@ def pingUniq(num_uniq, logfile,t0, t0_filename, check,told):
 
     if (num_uniq % 2 == 0) :
         message = t1 + '!!' + t2 + '!!' + t3 + '!!' + t4
+        print("Mensaje Corto: "+message)
     else:
         file_tobe_deleted = logfile + str(told)
         relleno_largo_msg = relleno_largo(4400,check,str(told),logfile)
         message = t1 + '!!' + t2 + '!!' + t3 + '!!' + t4 + '!!' + relleno_largo_msg
+        print("Mensaje Largo: "+message)
         file_with_data = relleno_largo_msg.startswith('DATA;;') # Para luego borrar el archivo una vez enviado
 
     client = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 
     try:
-        print("after read 0")
+        #print("after read 0")
         client.settimeout(5.0)
 
-        print("after read send")
+        #print("after read send")
         client.sendto(message + "\n", (TEST_HOST, TEST_PORT))
         if file_with_data == True:
             file_with_data = False
@@ -108,14 +110,14 @@ def pingUniq(num_uniq, logfile,t0, t0_filename, check,told):
             if modo_debug == False:
                 os.remove(installDirUnix + "/app/" + file_tobe_deleted)
 
-        print("after read 0 recv")
+        #print("after read 0 recv")
         data = client.recv(8192) #(2048) para el mensaje largo
-        print ("after read 1")
+        #print ("after read 1")
         msg = data.split('|')
-        print("after read 2")
+        #print("after read 2")
         data = msg[0] + '|' + msg[1] + '|' + msg[2] + '|' + ts() #+ '|' + msg[4], en msg[4] queda el contenido del mensaje largo sin imprimir
 
-        print("after read 3")
+        #print("after read 3")
         payload = 10
         iph=20 #longitud ip header (min. 20 bytes)
         udph=8 #longitud udp header (min. 8 bytes)
@@ -125,7 +127,7 @@ def pingUniq(num_uniq, logfile,t0, t0_filename, check,told):
         else:
             payload=len(data + '|'+ msg[4])
 
-        print("after read 4")
+        #print("after read 4")
         pack_len=str(iph + udph + payload)
         log_msg(log_file, '|' + pack_len + '|' + data)
 
@@ -163,7 +165,7 @@ if __name__ == "__main__":
 
         tnow = datetime.datetime.fromtimestamp(time.time())
         curr_lapsed_time = (tnow-t0_date).total_seconds()
-        if (curr_lapsed_time > 60) or (curr_lapsed_time < 0): # 60 segundos o cambio de dia
+        if (curr_lapsed_time > 10) or (curr_lapsed_time < 0): # 60 segundos o cambio de dia
             tries = 2
             t_old = t0
             t_old_filename = t0_filename
