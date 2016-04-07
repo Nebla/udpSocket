@@ -44,11 +44,11 @@
         android:text="@string/stop_service"
         android:onClick="stopService" />
 
-    <TextClock android:id="@+id/clock"
+    <!--<TextClock android:id="@+id/clock"
         android:format24Hour="yyyy-MM-dd hh:mm:ss"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:textSize="20sp"/>
+        android:textSize="20sp"/>-->
 
 </LinearLayout>
