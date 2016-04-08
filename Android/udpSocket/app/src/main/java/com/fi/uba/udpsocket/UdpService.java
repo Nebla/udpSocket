@@ -8,12 +8,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
@@ -27,15 +34,11 @@ public class UdpService extends IntentService {
     private  int port;
     private DatagramSocket socket;
 
-    private int numUniq;
-    private Boolean check;
-
     public UdpService() {
         super("UdpService");
     }
 
-    public void init () {
-        numUniq = 0;
+    private void init () {
         try {
             this.socket = new DatagramSocket();
         } catch (SocketException e) {
@@ -59,14 +62,16 @@ public class UdpService extends IntentService {
 
         try {
             if (!this.socket.isConnected()) {
-                InetAddress ipAddress  = InetAddress.getByName(address);
-                this.socket.connect(ipAddress,port);
+                InetAddress ipAddress = InetAddress.getByName(address);
+                this.socket.connect(ipAddress, port);
             }
         } catch (UnknownHostException e) {
             e.printStackTrace();
             this.cancelOnError("Socket connect unknown host error");
             return;
         }
+
+        Integer numUniq = intent.getIntExtra("numUniq", 0);
 
         String _24hs = "86400000000";
 
@@ -75,25 +80,18 @@ public class UdpService extends IntentService {
         String t3 = _24hs;
         String t4 = _24hs;
 
-        Date currentDate = new Date();
 
-        Calendar c = Calendar.getInstance();
-        long now = c.getTimeInMillis();
-        c.set(Calendar.HOUR_OF_DAY, 0);
-        c.set(Calendar.MINUTE, 0);
-        c.set(Calendar.SECOND, 0);
-        c.set(Calendar.MILLISECOND, 0);
-        long passed = now - c.getTimeInMillis();        //String message = currentDate.toString();
+        //String message = currentDate.toString();
 
         //Long time= System.currentTimeMillis();
         //t1 = time.toString();
         //en_microsegundos=float(timestamp[0])*3600*(10**6)+float(timestamp[1])*60*(10**6)+float(timestamp[2])*(10**6)+float(timestamp[3])
 
-        t1 = String.valueOf(passed);
+        t1 = timeStamp();
         String message;
 
         if (numUniq == 0) {
-            message =  t1 + "!!" + t2 + "!!" + t3 + "!!" + t4;
+            message = t1 + "!!" + t2 + "!!" + t3 + "!!" + t4;
             Log.i("Mensaje", "Mensaje Corto: " + message);
         } else {
             //file_tobe_deleted = logfile + str(told)
@@ -105,12 +103,12 @@ public class UdpService extends IntentService {
             Log.i("Mensaje", "Mensaje Largo: " + message);
         }
         int msg_lenght = message.length();
-        byte []byteMessage = message.getBytes();
+        byte[] byteMessage = message.getBytes();
 
         //LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.nnnnnnnnn"));
 
         try {
-            Log.d("UdpService", "Sending packet: "+message);
+            Log.d("UdpService", "Sending packet: " + message);
             DatagramPacket packet = new DatagramPacket(byteMessage, msg_lenght);
             this.socket.send(packet);
         } catch (IOException e) {
@@ -121,8 +119,80 @@ public class UdpService extends IntentService {
             this.cancelOnError("Unknown error");
         }
 
-        numUniq = (numUniq + 1)%2;
-        Log.i("Num Uniq",String.valueOf(numUniq));
+        byte[] lMsg = new byte[8192];
+        DatagramPacket dp = new DatagramPacket(lMsg, lMsg.length);
+
+
+        try {
+            this.socket.receive(dp);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        String response = new String(dp.getData(), 0, dp.getLength());
+        Log.i("Response", response);
+
+
+        String[] separatedResponse = response.split("|");
+
+
+        //#print("after read 2")
+        String data = separatedResponse[0] + "|" + separatedResponse[1] + "|" + separatedResponse[2] + "|" + timeStamp(); //#+ '|' + msg[4], en msg[4] queda el contenido del mensaje largo sin imprimir
+
+        //#print("after read 3")
+        //payload = 10
+        Integer iph=20; //longitud ip header (min. 20 bytes)
+        Integer udph=8; //longitud udp header (min. 8 bytes)
+
+        Integer payload;
+
+        if (numUniq % 2 == 0) {
+            payload = data.length();
+        }
+        else {
+            payload = (data + '|' + separatedResponse[4]).length();
+        }
+
+        String packetLength = String.valueOf(iph + udph + payload);
+        logMessage("saraza", "|" + packetLength + "|" + data);
+
+    }
+
+    private String timeStamp() {
+        Calendar c = Calendar.getInstance();
+        long now = c.getTimeInMillis();
+        c.set(Calendar.HOUR_OF_DAY, 0);
+        c.set(Calendar.MINUTE, 0);
+        c.set(Calendar.SECOND, 0);
+        c.set(Calendar.MILLISECOND, 0);
+        long passed = now - c.getTimeInMillis();
+
+        return String.valueOf(passed);
+    }
+
+    private void logMessage(String fileName, String message) {
+
+        SimpleDateFormat sdf = new SimpleDateFormat("d/MM/yyyy|k:m:s,S");
+        String currentDateandTime = sdf.format(new Date());
+
+        String log = currentDateandTime + " " + message;
+
+
+        try {
+            /*FileOutputStream fou = openFileOutput(fileName, MODE_APPEND);
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fou);
+            outputStreamWriter.write(log);
+            outputStreamWriter.close();*/
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new
+                    File(getFilesDir()+File.separator+fileName)));
+            bufferedWriter.write(log);
+            bufferedWriter.close();
+        }
+        catch (IOException e) {
+            Log.e("UdpService",e.getMessage());
+            e.printStackTrace();
+        }
+
     }
 
     private String randomString(int size) {

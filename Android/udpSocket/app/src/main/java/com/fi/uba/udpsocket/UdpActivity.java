@@ -11,7 +11,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -64,6 +70,9 @@ public class UdpActivity extends Activity {
     }
 
     public void startService(View view) {
+
+        Log.i("UdpActivity","Startin service");
+
         EditText portText = (EditText) findViewById(R.id.edit_port);
         String portString = portText.getText().toString();
         int port;
@@ -108,5 +117,26 @@ public class UdpActivity extends Activity {
         final PendingIntent pIntent = PendingIntent.getBroadcast(this, AlarmReceiver.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
         alarm.cancel(pIntent);
+
+        /* Test generated file */
+        TextView textView = (TextView) findViewById(R.id.fileTest);
+        StringBuilder builder = null;
+        BufferedReader bufferedReader = null;
+        try {
+            bufferedReader = new BufferedReader(new FileReader(new
+                    File(getFilesDir()+ File.separator+"saraza")));
+
+            String read;
+            builder = new StringBuilder("");
+            while((read = bufferedReader.readLine()) != null){
+                builder.append(read);
+            }
+            bufferedReader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Log.d("Output", builder.toString());
+        textView.setText(builder.toString());
     }
 }

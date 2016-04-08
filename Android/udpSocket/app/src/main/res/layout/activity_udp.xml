@@ -44,6 +44,9 @@
         android:text="@string/stop_service"
         android:onClick="stopService" />
 
+    <TextView android:id="@+id/fileTest"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
     <!--<TextClock android:id="@+id/clock"
         android:format24Hour="yyyy-MM-dd hh:mm:ss"
         android:layout_width="fill_parent"
