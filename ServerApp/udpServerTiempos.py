@@ -251,8 +251,9 @@ class ThreadingUDPRequestHandler(SocketServer.BaseRequestHandler):
                 dataEnviada = msg[0]+'|'+ tstamp +'|' + str(ts()) + '|' + msg[3]
                 print("Mensaje corto: " + dataEnviada)
                 socket.sendto(dataEnviada, self.client_address)
-        except:
-            print("Error1")
+        except Exception, e:
+            print("Error 1")
+            print(e)
             #rollbar.report_exc_info()
 
     def worker_thread(self, msg):
