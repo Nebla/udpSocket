@@ -80,22 +80,23 @@ public class UdpService extends IntentService {
 
             String longMessage = this.longMessage(installationName, lastFileName); //rellenoLargo(4400, check, str(told), logfile);
             message = t1 + "!!" + t2 + "!!" + t3 + "!!" + t4 + "!!" + longMessage;
-            Log.i("Mensaje", "Mensaje Largo: " + message);
+            Log.i("Udp Service - Largo", "Size: "+String.valueOf(message.getBytes().length) + " Mensaje: " + message);
 
             // We check if we need to remove the log file because is already going to be sent in the next message
             if (PingStatus.getInstance().shouldSendSavedData()) {
                 // The current data is being sent, so we need to delete lastFile
                 String logFileName = logFileBase + "_" + lastFileName;
-                TimeLogHelper.deleteFile(logFileName);
+                Log.i("Udp Service", "Deleting log message: "+logFileName);
+                TimeLogHelper.deleteFile(this.getApplicationContext(), logFileName);
             }
         } else {
             // Short message
             message = t1 + "!!" + t2 + "!!" + t3 + "!!" + t4;
-            Log.i("Mensaje", "Mensaje Corto: " + message);
+            Log.i("Udp Service - Corto", "Size: "+String.valueOf(message.getBytes().length) + " Mensaje: " + message);
         }
 
         // Server response
-        DatagramPacket packet = new DatagramPacket(message.getBytes(), message.length());
+        DatagramPacket packet = new DatagramPacket(message.getBytes(), message.getBytes().length);
         try {
             Log.d("UdpService", "Sending packet: " + message);
             socket.send(packet);
@@ -129,7 +130,9 @@ public class UdpService extends IntentService {
         String packetLength = String.valueOf(ipHeader + udpHeader + payload);
 
         String logFileName = logFileBase + "_" + PingStatus.getInstance().currentFileName();
-        TimeLogHelper.logTimeMessage(logFileName, "|" + packetLength + "|" + data);
+        TimeLogHelper.logTimeMessage(this.getApplicationContext(), logFileName, "|" + packetLength + "|" + data);
+
+        Log.i("Udp Service", "Finished");
     }
 
     private String longMessage(String installationName, String told) {
@@ -137,7 +140,7 @@ public class UdpService extends IntentService {
         if (PingStatus.getInstance().shouldSendSavedData()) {
             // Content of the log message
             String logFileName = logFileBase + "_" + told;
-            String fileMessage = TimeLogHelper.readLogTimeFile(logFileName);
+            String fileMessage = TimeLogHelper.readLogTimeFile(this.getApplicationContext(), logFileName);
 
             // We need both the public and private keys generated during the installation
             KeyManager keyManager = new KeyManager(this.getApplicationContext());
