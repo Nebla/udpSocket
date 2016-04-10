@@ -47,24 +47,6 @@ public class UdpService extends IntentService {
         super("UdpService");
     }
 
-    private DatagramSocket createCommunicationChannel(String address, int port) {
-        DatagramSocket socket = null;
-        try {
-            socket = new DatagramSocket();
-            InetAddress ipAddress = InetAddress.getByName(address);
-            socket.connect(ipAddress, port);
-        }
-        catch (SocketException e) {
-            e.printStackTrace();
-            this.cancelOnError("Socket creation socket exception");
-        }
-        catch (UnknownHostException e) {
-            e.printStackTrace();
-            this.cancelOnError("Socket connect unknown host error");
-        }
-        return socket;
-    }
-
     @Override
     protected void onHandleIntent(Intent intent) {
 
@@ -73,8 +55,7 @@ public class UdpService extends IntentService {
         String address = intent.getStringExtra("address");
         int port = intent.getIntExtra("port", 0);
 
-        //TODO: Check the appropiate value for the log file told, t0_filename and t0
-        String told = "LOG_FILE_NAME";
+        PingStatus.getInstance().updateValues();
 
         // Create the communication channel
         DatagramSocket socket = createCommunicationChannel(address, port);
@@ -90,19 +71,25 @@ public class UdpService extends IntentService {
         String t4 = _24hs;
 
         String message;
-        if (PingStatus.getInstance().getNumUniq() == 0) {
-            // Short message
-            message = t1 + "!!" + t2 + "!!" + t3 + "!!" + t4;
-            Log.i("Mensaje", "Mensaje Corto: " + message);
-        } else {
+        if (PingStatus.getInstance().shouldSendLongMessage()) {
             // Long message
-            String longMessage = this.longMessage(installationName, told ); //rellenoLargo(4400, check, str(told), logfile);
+
+            String lastFileName = PingStatus.getInstance().lastFileName();
+
+            String longMessage = this.longMessage(installationName, lastFileName); //rellenoLargo(4400, check, str(told), logfile);
             message = t1 + "!!" + t2 + "!!" + t3 + "!!" + t4 + "!!" + longMessage;
             Log.i("Mensaje", "Mensaje Largo: " + message);
 
             // We check if we need to remove the log file because is already going to be sent in the next message
-            String logFileName = logFileBase + "_" + told;
-            if (longMessage.startsWith("DATA;;")) TimeLogHelper.deleteFile(logFileName);
+            if (PingStatus.getInstance().shouldSendSavedData()) {
+                // The current data is being sent, so we need to delete lastFile
+                String logFileName = logFileBase + "_" + lastFileName;
+                TimeLogHelper.deleteFile(logFileName);
+            }
+        } else {
+            // Short message
+            message = t1 + "!!" + t2 + "!!" + t3 + "!!" + t4;
+            Log.i("Mensaje", "Mensaje Corto: " + message);
         }
 
         // Server response
@@ -131,7 +118,7 @@ public class UdpService extends IntentService {
         String data = separatedResponse[0] + "|" + separatedResponse[1] + "|" + separatedResponse[2] + "|" + TimeHelper.stringTimeStamp(); //#+ '|' + msg[4], en msg[4] queda el contenido del mensaje largo sin imprimir
 
         Integer payload = data.length();
-        if (PingStatus.getInstance().getNumUniq() % 2 != 0) {
+        if (PingStatus.getInstance().shouldSendLongMessage()) {
             payload = (data + '|' + separatedResponse[4]).length();
         }
 
@@ -139,16 +126,13 @@ public class UdpService extends IntentService {
         Integer udpHeader = 8; // udp header length (min. 8 bytes)
         String packetLength = String.valueOf(ipHeader + udpHeader + payload);
 
-        String logFileName = logFileBase + "_" + told;
+        String logFileName = logFileBase + "_" + PingStatus.getInstance().currentFileName();
         TimeLogHelper.logTimeMessage(logFileName, "|" + packetLength + "|" + data);
-
     }
-
 
     private String longMessage(String installationName, String told) {
         String longMessage = StringHelper.randomString(longMessageSize);
-        if (PingStatus.getInstance().shouldSendData()) {
-
+        if (PingStatus.getInstance().shouldSendSavedData()) {
             // Content of the log message
             String logFileName = logFileBase + "_" + told;
             String fileMessage = TimeLogHelper.readLogTimeFile(logFileName);
@@ -172,6 +156,25 @@ public class UdpService extends IntentService {
             }
         }
         return longMessage;
+    }
+
+    // Communication channel: Creates an udp socket with the given address and port
+    private DatagramSocket createCommunicationChannel(String address, int port) {
+        DatagramSocket socket = null;
+        try {
+            socket = new DatagramSocket();
+            InetAddress ipAddress = InetAddress.getByName(address);
+            socket.connect(ipAddress, port);
+        }
+        catch (SocketException e) {
+            e.printStackTrace();
+            this.cancelOnError("Socket creation socket exception");
+        }
+        catch (UnknownHostException e) {
+            e.printStackTrace();
+            this.cancelOnError("Socket connect unknown host error");
+        }
+        return socket;
     }
 
     private void cancelOnError(String errorMessage) {

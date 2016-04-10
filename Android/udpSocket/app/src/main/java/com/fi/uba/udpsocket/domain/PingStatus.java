@@ -1,5 +1,7 @@
 package com.fi.uba.udpsocket.domain;
 
+import com.fi.uba.udpsocket.utils.TimeHelper;
+
 import java.util.Date;
 
 /**
@@ -10,19 +12,20 @@ public class PingStatus {
     private static final Object lock = new Object();
     private static volatile PingStatus instance;
 
-    private static int numUniq;
-    private static boolean checker;
+    private boolean longMessage;
+    private boolean sendAllData;
 
-    /*private static String t0;
-    private static String t0Filename;
-    private static Date t0Date;
-    private static String tOldFilename;*/
+    private String lastFileName;
+    private Date currentDate;
+    private String currentFilename;
 
     private PingStatus () {
-        numUniq = 0;
-        checker = false;
+        longMessage = true; // It should init in true, because the first thing we do is updating all the values
+        sendAllData = false;
 
-
+        currentDate = TimeHelper.currentDate();
+        currentFilename = String.valueOf(currentDate.getTime());
+        lastFileName = "";
     }
 
     public static PingStatus getInstance() {
@@ -39,15 +42,33 @@ public class PingStatus {
         return status;
     }
 
-    public int getNumUniq() {
-        return numUniq;
+    public boolean shouldSendLongMessage() {
+        return longMessage;
     }
 
-    public boolean shouldSendData () {
-        return checker;
+    public boolean shouldSendSavedData () {
+        return sendAllData;
+    }
+
+    public String lastFileName () {
+        return lastFileName;
+    }
+
+    public String currentFileName () {
+        return currentFilename;
     }
 
     public void updateValues () {
-        numUniq = (numUniq + 1)%2;
+        longMessage = !longMessage;
+
+        Date now = TimeHelper.currentDate();
+        float difference = currentDate.getTime() - now.getTime();
+        if (difference/1000 >= 60) {
+            lastFileName = currentFilename;
+            currentDate = now;
+            currentFilename = String.valueOf(currentDate.getTime());
+        }
     }
+
+
 }

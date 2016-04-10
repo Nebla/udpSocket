@@ -20,9 +20,9 @@ public class TimeHelper {
         return String.valueOf(passed);
     }
 
-    public static long milisecondsSinceEpoch() {
+    public static float secondsSinceEpoch() {
         Calendar c = Calendar.getInstance();
-        return c.getTimeInMillis();
+        return c.getTimeInMillis()/1000;
     }
 
     public static Date currentDate() {
