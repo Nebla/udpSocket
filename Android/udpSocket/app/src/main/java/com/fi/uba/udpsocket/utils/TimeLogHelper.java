@@ -31,7 +31,9 @@ public class TimeLogHelper {
             Log.e("TimeLogHelper - read", e.getMessage());
             e.printStackTrace();
         }
-        return builder.toString();
+        String result = builder.toString();
+        Log.i("Time Log - Read:",result);
+        return result;
     }
 
     public static void logTimeMessage(Context context, String fileName, String message) {
@@ -41,8 +43,9 @@ public class TimeLogHelper {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy|k:m:s,S");
         String currentDateandTime = sdf.format(new Date());
 
-        String log = currentDateandTime + " " + message;
+        String log = currentDateandTime + " " + message + "\n";
 
+        Log.i("Time Log - Log:",log);
         try {
             outputStream = context.openFileOutput(fileName, Context.MODE_APPEND);
             outputStream.write(log.getBytes());
