@@ -84,7 +84,7 @@ public class UdpActivity extends Activity {
 
     public void startService(View view) {
 
-        Log.i("UdpActivity","Startin service");
+        Log.i("UdpActivity","Starting service");
 
 
         EditText editText = (EditText) findViewById(R.id.edit_message);
@@ -124,9 +124,9 @@ public class UdpActivity extends Activity {
         final PendingIntent pIntent = PendingIntent.getBroadcast(this, AlarmReceiver.REQUEST_CODE,
                 intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        // Setup periodic alarm every 20 seconds
+        // Setup periodic alarm every 1 second
         long firstMillis = System.currentTimeMillis(); // first run of alarm is immediate
-        int intervalMillis = 1; // 20 seconds
+        int intervalMillis = 1000; // 1 second
         AlarmManager alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
         alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, firstMillis, intervalMillis, pIntent);
     }
