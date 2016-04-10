@@ -18,6 +18,9 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+
+        Log.i("Alarm Receiver", "Received alarm");
+
         Intent i = new Intent(context, UdpService.class);
 
         i.putExtra("installation", intent.getStringExtra("installation"));

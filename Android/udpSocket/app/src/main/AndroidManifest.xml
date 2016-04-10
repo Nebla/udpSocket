@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -13,7 +14,6 @@
         <activity
             android:name=".screens.login.LoginActivity"
             android:label="@string/title_activity_login" >
-
         </activity>
         <activity
             android:name=".screens.login.CreateActivity"
@@ -30,7 +30,8 @@
 
         <service
             android:name=".UdpService"
-            android:exported="false" />
+            android:exported="false">
+        </service>
 
         <receiver
             android:name=".AlarmReceiver"
