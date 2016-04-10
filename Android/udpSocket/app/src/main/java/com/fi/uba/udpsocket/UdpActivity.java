@@ -13,6 +13,8 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.fi.uba.udpsocket.utils.KeyManager;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -69,9 +71,22 @@ public class UdpActivity extends Activity {
         task.execute(ipAddress, port, message);
     }
 
+    public void createInstallation (View view) {
+
+        EditText editText = (EditText) findViewById(R.id.edit_message);
+        String instName = editText.getText().toString();
+
+        KeyManager manager = new KeyManager(getApplicationContext());
+        manager.generateKeys(instName);
+    }
+
     public void startService(View view) {
 
         Log.i("UdpActivity","Startin service");
+
+
+        EditText editText = (EditText) findViewById(R.id.edit_message);
+        String instName = editText.getText().toString();
 
         EditText portText = (EditText) findViewById(R.id.edit_port);
         String portString = portText.getText().toString();
@@ -100,6 +115,8 @@ public class UdpActivity extends Activity {
 
         intent.putExtra("address",ipAddress);
         intent.putExtra("port",port);
+
+        intent.putExtra("installation",instName);
 
         // Create a PendingIntent to be triggered when the alarm goes off
         final PendingIntent pIntent = PendingIntent.getBroadcast(this, AlarmReceiver.REQUEST_CODE,

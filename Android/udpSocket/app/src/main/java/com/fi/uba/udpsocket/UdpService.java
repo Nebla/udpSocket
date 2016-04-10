@@ -9,7 +9,11 @@ import android.content.Intent;
 import android.util.Base64;
 import android.util.Log;
 
+import com.fi.uba.udpsocket.domain.PingStatus;
 import com.fi.uba.udpsocket.utils.KeyManager;
+import com.fi.uba.udpsocket.utils.StringHelper;
+import com.fi.uba.udpsocket.utils.TimeHelper;
+import com.fi.uba.udpsocket.utils.TimeLogHelper;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -36,29 +40,14 @@ import java.util.Random;
 public class UdpService extends IntentService {
 
     // Constants
-    private static String logFileBase = "log";
-    private static int longMessageSize = 44400;
-
-    private static int numUniq = 0;
-    private static boolean checker = false;
+    private static final String logFileBase = "log";
+    private static final int longMessageSize = 44400;
 
     public UdpService() {
         super("UdpService");
     }
 
-    @Override
-    protected void onHandleIntent(Intent intent) {
-
-        // We need the installation name in the service to get the key pair
-        String installationName = intent.getStringExtra("installation");
-
-        String address = intent.getStringExtra("address");
-        int port = intent.getIntExtra("port", 0);
-
-        //TODO: Check the appropiate value for the log file told, t0_filename and t0
-        String told = "LOG_FILE_NAME";
-
-        // Create the communication channel
+    private DatagramSocket createCommunicationChannel(String address, int port) {
         DatagramSocket socket = null;
         try {
             socket = new DatagramSocket();
@@ -72,32 +61,48 @@ public class UdpService extends IntentService {
         catch (UnknownHostException e) {
             e.printStackTrace();
             this.cancelOnError("Socket connect unknown host error");
-            return;
         }
+        return socket;
+    }
 
+    @Override
+    protected void onHandleIntent(Intent intent) {
+
+        // We need the installation name in the service to get the key pair
+        String installationName = intent.getStringExtra("installation");
+        String address = intent.getStringExtra("address");
+        int port = intent.getIntExtra("port", 0);
+
+        //TODO: Check the appropiate value for the log file told, t0_filename and t0
+        String told = "LOG_FILE_NAME";
+
+        // Create the communication channel
+        DatagramSocket socket = createCommunicationChannel(address, port);
         if (socket == null) {
             return;
         }
 
         String _24hs = "86400000000";
 
-        String t1 = timeStamp();
+        String t1 = TimeHelper.stringTimeStamp();
         String t2 = _24hs;
         String t3 = _24hs;
         String t4 = _24hs;
 
         String message;
-
-        if (numUniq == 0) {
+        if (PingStatus.getInstance().getNumUniq() == 0) {
             // Short message
             message = t1 + "!!" + t2 + "!!" + t3 + "!!" + t4;
             Log.i("Mensaje", "Mensaje Corto: " + message);
         } else {
             // Long message
-
             String longMessage = this.longMessage(installationName, told ); //rellenoLargo(4400, check, str(told), logfile);
             message = t1 + "!!" + t2 + "!!" + t3 + "!!" + t4 + "!!" + longMessage;
             Log.i("Mensaje", "Mensaje Largo: " + message);
+
+            // We check if we need to remove the log file because is already going to be sent in the next message
+            String logFileName = logFileBase + "_" + told;
+            if (longMessage.startsWith("DATA;;")) TimeLogHelper.deleteFile(logFileName);
         }
 
         // Server response
@@ -110,23 +115,23 @@ public class UdpService extends IntentService {
             this.cancelOnError("IOException");
         }
 
-        byte[] lMsg = new byte[8192];
-        DatagramPacket dp = new DatagramPacket(lMsg, lMsg.length);
+        byte[] recievedMessage = new byte[8192];
+        packet = new DatagramPacket(recievedMessage, recievedMessage.length);
 
         try {
-            socket.receive(dp);
+            socket.receive(packet);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        String response = new String(dp.getData(), 0, dp.getLength());
+        String response = new String(packet.getData(), 0, packet.getLength());
         Log.i("Response", response);
 
         String[] separatedResponse = response.split("\\|");
-        String data = separatedResponse[0] + "|" + separatedResponse[1] + "|" + separatedResponse[2] + "|" + timeStamp(); //#+ '|' + msg[4], en msg[4] queda el contenido del mensaje largo sin imprimir
+        String data = separatedResponse[0] + "|" + separatedResponse[1] + "|" + separatedResponse[2] + "|" + TimeHelper.stringTimeStamp(); //#+ '|' + msg[4], en msg[4] queda el contenido del mensaje largo sin imprimir
 
         Integer payload = data.length();
-        if (numUniq % 2 != 0) {
+        if (PingStatus.getInstance().getNumUniq() % 2 != 0) {
             payload = (data + '|' + separatedResponse[4]).length();
         }
 
@@ -135,65 +140,18 @@ public class UdpService extends IntentService {
         String packetLength = String.valueOf(ipHeader + udpHeader + payload);
 
         String logFileName = logFileBase + "_" + told;
-        logMessage(logFileName, "|" + packetLength + "|" + data);
-
-        numUniq = (numUniq+1)%2;
-    }
-
-    private String timeStamp() {
-        Calendar c = Calendar.getInstance();
-        long now = c.getTimeInMillis();
-        c.set(Calendar.HOUR_OF_DAY, 0);
-        c.set(Calendar.MINUTE, 0);
-        c.set(Calendar.SECOND, 0);
-        c.set(Calendar.MILLISECOND, 0);
-        long passed = now - c.getTimeInMillis();
-
-        return String.valueOf(passed);
-    }
-
-    private void logMessage(String fileName, String message) {
-
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy|k:m:s,S");
-        String currentDateandTime = sdf.format(new Date());
-
-        String log = currentDateandTime + " " + message;
-
-        try {
-            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new
-                    File(getFilesDir()+File.separator+fileName),true));
-            bufferedWriter.write(log);
-            bufferedWriter.close();
-        }
-        catch (IOException e) {
-            Log.e("UdpService",e.getMessage());
-            e.printStackTrace();
-        }
+        TimeLogHelper.logTimeMessage(logFileName, "|" + packetLength + "|" + data);
 
     }
+
 
     private String longMessage(String installationName, String told) {
-        String longMessage = this.randomString(longMessageSize);
-        if (checker) {
-            // Open log message
-            String logFileName = logFileBase + "_" + told;
-            StringBuilder builder = new StringBuilder("");
-            BufferedReader bufferedReader = null;
-            try {
-                bufferedReader = new BufferedReader(new FileReader(new
-                        File(getFilesDir()+ File.separator+logFileName)));
-
-                String read;
-                while((read = bufferedReader.readLine()) != null){
-                    builder.append(read);
-                }
-                bufferedReader.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        String longMessage = StringHelper.randomString(longMessageSize);
+        if (PingStatus.getInstance().shouldSendData()) {
 
             // Content of the log message
-            String fileMessage = builder.toString();
+            String logFileName = logFileBase + "_" + told;
+            String fileMessage = TimeLogHelper.readLogTimeFile(logFileName);
 
             // We need both the public and private keys generated during the installation
             KeyManager keyManager = new KeyManager(this.getApplicationContext());
@@ -209,23 +167,11 @@ public class UdpService extends IntentService {
 
             // We complete the missing characters with random data
             if (longMessage.length() < longMessageSize) {
-                String padding = this.randomString(longMessageSize - longMessage.length());
+                String padding = StringHelper.randomString(longMessageSize - longMessage.length());
                 longMessage = longMessage + padding;
             }
         }
         return longMessage;
-    }
-
-    private String randomString(int size) {
-        Random generator = new Random();
-        StringBuilder randomStringBuilder = new StringBuilder();
-
-        int tempChar;
-        for (int i = 0; i < size; i++){
-            tempChar = (generator.nextInt(10));
-            randomStringBuilder.append(tempChar);
-        }
-        return randomStringBuilder.toString();
     }
 
     private void cancelOnError(String errorMessage) {
