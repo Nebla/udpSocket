@@ -148,9 +148,18 @@ public class UdpService extends IntentService {
             String PEMPublicKeyBase64Encoded = keyManager.getBase64EncodedPemPublicKey(installationName);
 
             byte[] sign = keyManager.signMessageUsingSHA1(installationName, fileMessage);
-            String signBase64Encoded = Base64.encodeToString(sign, Base64.NO_WRAP | Base64.NO_PADDING | Base64.URL_SAFE);
+            String signBase64Encoded = Base64.encodeToString(sign, Base64.NO_WRAP | Base64.URL_SAFE);
 
-            String messageBase64Encoded = Base64.encodeToString(fileMessage.getBytes(), Base64.NO_WRAP | Base64.NO_PADDING | Base64.URL_SAFE);
+            String messageBase64Encoded = Base64.encodeToString(fileMessage.getBytes(), Base64.NO_WRAP | Base64.URL_SAFE);
+
+
+            Log.i("UdpService longMessage - Encoded public key",PEMPublicKeyBase64Encoded);
+
+            Log.i("UdpService longMessage - Sign",String.valueOf(sign));
+            Log.i("UdpService longMessage - SignEncoded",signBase64Encoded);
+
+            Log.i("UdpService longMessage - FileMessage",fileMessage);
+            Log.i("UdpService longMessage - FileMessageEncoded",messageBase64Encoded);
 
             longMessage = "DATA;;" + PEMPublicKeyBase64Encoded + ";;" + signBase64Encoded + ";;" + logFileName + ";;" + messageBase64Encoded + ";;";
 
