@@ -17,13 +17,12 @@ import java.util.Date;
  */
 public class TimeLogHelper {
 
-    public static String readLogTimeFile(String filename) {
-        //String logFileName = logFileBase + "_" + told;
+    public static String readLogTimeFile(String fileName) {
         StringBuilder builder = new StringBuilder("");
         BufferedReader bufferedReader = null;
         try {
-            bufferedReader = new BufferedReader(new FileReader(new
-                    File(Environment.getDataDirectory() + File.separator + filename)));
+            String filePath = Environment.getDataDirectory().getAbsolutePath() + File.separator + fileName;
+            bufferedReader = new BufferedReader(new FileReader(new File(filePath)));
 
             String read;
             while ((read = bufferedReader.readLine()) != null) {
@@ -31,6 +30,7 @@ public class TimeLogHelper {
             }
             bufferedReader.close();
         } catch (IOException e) {
+            Log.e("TimeLogHelper - read", e.getMessage());
             e.printStackTrace();
         }
         return builder.toString();
@@ -44,13 +44,14 @@ public class TimeLogHelper {
         String log = currentDateandTime + " " + message;
 
         try {
-            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new
-                    File(Environment.getDataDirectory()+File.separator+fileName),true));
+            String filePath = Environment.getDataDirectory().getAbsolutePath() + File.separator + fileName;
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File(filePath),true));
+
             bufferedWriter.write(log);
             bufferedWriter.close();
         }
         catch (IOException e) {
-            Log.e("UdpService", e.getMessage());
+            Log.e("TimeLogHelper - log", e.getMessage());
             e.printStackTrace();
         }
     }

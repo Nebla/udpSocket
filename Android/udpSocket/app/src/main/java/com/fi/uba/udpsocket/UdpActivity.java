@@ -1,11 +1,14 @@
 package com.fi.uba.udpsocket;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -52,7 +55,6 @@ public class UdpActivity extends Activity {
 
         return super.onOptionsItemSelected(item);
     }
-
 
     /** Called when the user clicks the Send button */
     public void sendMessage(View view) {
@@ -124,7 +126,7 @@ public class UdpActivity extends Activity {
 
         // Setup periodic alarm every 20 seconds
         long firstMillis = System.currentTimeMillis(); // first run of alarm is immediate
-        int intervalMillis = 20000; // 20 seconds
+        int intervalMillis = 1; // 20 seconds
         AlarmManager alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
         alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, firstMillis, intervalMillis, pIntent);
     }
@@ -135,7 +137,7 @@ public class UdpActivity extends Activity {
         AlarmManager alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
         alarm.cancel(pIntent);
 
-        /* Test generated file */
+        /* Test generated file
         TextView textView = (TextView) findViewById(R.id.fileTest);
         StringBuilder builder = null;
         BufferedReader bufferedReader = null;
@@ -154,6 +156,6 @@ public class UdpActivity extends Activity {
         }
 
         Log.d("Output", builder.toString());
-        textView.setText(builder.toString());
+        textView.setText(builder.toString());*/
     }
 }
