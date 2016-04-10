@@ -47,7 +47,7 @@ public class KeyManager extends Activity {
 
         try {
             KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-            kpg.initialize(64);
+            kpg.initialize(2048);
             KeyPair keyPair = kpg.generateKeyPair();
 
             // Save the private key
@@ -195,7 +195,7 @@ public class KeyManager extends Activity {
         Signature instance = null;
         byte []signed = new byte[0];
         try {
-            instance = Signature.getInstance("SHA-1");
+            instance = Signature.getInstance("SHA1withRSA");
             instance.initSign(this.getPrivateKey(keyAlias));
             instance.update(message.getBytes());
             signed = instance.sign();
