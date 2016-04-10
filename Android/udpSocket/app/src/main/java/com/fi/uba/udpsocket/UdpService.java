@@ -41,7 +41,7 @@ public class UdpService extends IntentService {
 
     // Constants
     private static final String logFileBase = "log";
-    private static final int longMessageSize = 44400;
+    private static final int longMessageSize = 4400;
 
     public UdpService() {
         super("UdpService");
@@ -49,6 +49,8 @@ public class UdpService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+
+        Log.i("Udp Service", "Launched");
 
         // We need the installation name in the service to get the key pair
         String installationName = intent.getStringExtra("installation");
