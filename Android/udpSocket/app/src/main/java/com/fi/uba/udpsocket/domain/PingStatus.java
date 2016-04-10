@@ -1,5 +1,7 @@
 package com.fi.uba.udpsocket.domain;
 
+import android.util.Log;
+
 import com.fi.uba.udpsocket.utils.TimeHelper;
 
 import java.util.Date;
@@ -62,11 +64,17 @@ public class PingStatus {
         longMessage = !longMessage;
 
         Date now = TimeHelper.currentDate();
-        float difference = currentDate.getTime() - now.getTime();
-        if (difference/1000 >= 60) {
+        float difference = now.getTime() - currentDate.getTime();
+        Log.i("Ping Statis", "Difference: "+String.valueOf(difference));
+        if ((difference/1000 >= 60) && longMessage) {
+            // We must check if the next is a long message, because in the other case, it could happen that a short message comes, and this values are reseted
             lastFileName = currentFilename;
             currentDate = now;
             currentFilename = String.valueOf(currentDate.getTime());
+            sendAllData = true;
+        }
+        else {
+            sendAllData = false;
         }
     }
 
