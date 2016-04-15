@@ -7,6 +7,7 @@ package com.fi.uba.udpsocket.utils;
 import android.app.Activity;
 import android.content.Context;
 import android.util.Base64;
+import android.util.Log;
 
 import org.spongycastle.asn1.ASN1Encodable;
 import org.spongycastle.asn1.ASN1Primitive;
@@ -25,14 +26,24 @@ import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
+import java.security.Provider;
 import java.security.PublicKey;
+import java.security.Security;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Set;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 
 public class KeyManager extends Activity {
 
@@ -47,7 +58,7 @@ public class KeyManager extends Activity {
 
         try {
             KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-            kpg.initialize(2048);
+            kpg.initialize(512);
             KeyPair keyPair = kpg.generateKeyPair();
 
             // Save the private key
@@ -113,22 +124,6 @@ public class KeyManager extends Activity {
     }
 
     public String getPemPublicKey (String alias) {
-        /*PublicKey publicKey = this.getPublicKey(alias);
-        byte[] publicKeyBytes = publicKey.getEncoded();
-
-        PemObject pemObject = new PemObject("RSA PUBLIC KEY", publicKeyBytes);
-        StringWriter stringWriter = new StringWriter();
-        PemWriter pemWriter = new PemWriter(stringWriter);
-        try {
-            pemWriter.writeObject(pemObject);
-            pemWriter.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        String pemString = stringWriter.toString();
-        return pemString;*/
-
         PemObject pemObject = new PemObject("RSA PUBLIC KEY", this.getPkcs1PublicKey(alias));
         StringWriter stringWriter = new StringWriter();
         PemWriter pemWriter = new PemWriter(stringWriter);
@@ -192,17 +187,74 @@ public class KeyManager extends Activity {
     /* Helper methods */
 
     public byte[] signMessageUsingSHA1(String keyAlias, String message) {
-        Signature instance = null;
+
+
+        Provider[] providers = Security.getProviders();
+        for (Provider provider : providers) {
+            Log.i("CRYPTO","provider: "+provider.getName());
+            Set<Provider.Service> services = provider.getServices();
+            for (Provider.Service service : services) {
+                Log.i("CRYPTO","  algorithm: "+service.getAlgorithm());
+            }
+        }
+
+
         byte []signed = new byte[0];
         try {
-            instance = Signature.getInstance("SHA1withRSA");
+            // Compute digest
+            //MessageDigest sha1 = MessageDigest.getInstance("SHA1");
+            //byte[] digest = sha1.digest(message.getBytes());
+
+            //Log.i("Key Manager", byteArray2Hex(digest));
+
+            // Encrypt digest
+            //Cipher cipher = Cipher.getInstance("RSA");
+            //cipher.init(Cipher.ENCRYPT_MODE, this.getPrivateKey(keyAlias));
+            //signed = cipher.doFinal(digest);
+
+
+
+            Signature instance = Signature.getInstance("SHA1WithRSAEncryption","BC");
             instance.initSign(this.getPrivateKey(keyAlias));
             instance.update(message.getBytes());
             signed = instance.sign();
-        } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {
+
+        } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException | NoSuchProviderException e) {
             e.printStackTrace();
         }
+
+        Log.i("Key Manager - Sign", byteArray2Hex(signed));
         return signed;
+    }
+
+    /*private byte[] sign(byte[] bytes, String privateKey) throws Exception {
+        Signature signature = Signature.getInstance("SHA256withRSA", "SC");
+        signature.initSign(Crypto.getRSAPrivateKeyFromString(privateKey));
+        signature.update(bytes);
+        return signature.sign();
+    }*/
+
+
+    public boolean verify(byte[] bytes, String keyAlias) {
+        Boolean result = true;
+        try {
+            Signature signature = Signature.getInstance("SHA1WithRSAEncryption","BC");
+            signature.initVerify(this.getPublicKey(keyAlias));
+            result = signature.verify(bytes);
+        } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException | NoSuchProviderException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    private static final char[] hex = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+    private static String byteArray2Hex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder(bytes.length * 2);
+        for (final byte b : bytes) {
+            sb.append(hex[(b & 0xF0) >> 4]);
+            sb.append(hex[b & 0x0F]);
+        }
+        return sb.toString();
     }
 
     /*public void generateKeys(){
