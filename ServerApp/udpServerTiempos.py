@@ -7,6 +7,7 @@
 
 import SocketServer
 import datetime
+import hashlib
 import threading
 import ConfigParser
 import platform, os, sys, glob, shutil, time
@@ -271,12 +272,18 @@ class ThreadingUDPRequestHandler(SocketServer.BaseRequestHandler):
 
                 # logger.info("Se ha recibido el siguiente paquete de datos: " + client_msg_filename)
                 # # print "<public key>\n" + client_pub_key_str + "\n</public key>\n"
-                # print "Signed msg: " + client_signed_msg
+                print "Signed msg: " + client_signed_msg
                 # print "Filename: " + client_msg_filename
                 # print "<plain msg>\n" + client_plain_msg + "\n</plain msg>\n"
 
                 # En el servidor se hace el VERIFY, para esto se necesita tambien la firma!
                 pubKey = rsa.PublicKey.load_pkcs1(client_pub_key_str)
+
+                print "Digest"
+                print hashlib.sha1(client_plain_msg).hexdigest()
+
+                print "Signed Hex"
+                print client_signed_msg.encode("hex")
 
                 if rsa.verify(client_plain_msg, client_signed_msg, pubKey):
                     # logger.debug("Chequeo de integridad satisfactorio para " + client_msg_filename)
