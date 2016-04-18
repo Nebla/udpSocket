@@ -15,7 +15,7 @@ public class TimeHelper {
         c.set(Calendar.MINUTE, 0);
         c.set(Calendar.SECOND, 0);
         c.set(Calendar.MILLISECOND, 0);
-        long passed = now - c.getTimeInMillis();
+        long passed = (now - c.getTimeInMillis())*1000; // Server is prepared to receive microseconds
 
         return String.valueOf(passed);
     }
