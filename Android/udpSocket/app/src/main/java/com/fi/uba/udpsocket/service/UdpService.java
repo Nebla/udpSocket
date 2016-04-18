@@ -1,4 +1,4 @@
-package com.fi.uba.udpsocket;
+package com.fi.uba.udpsocket.service;
 
 import android.app.AlarmManager;
 import android.app.IntentService;
@@ -10,29 +10,18 @@ import android.util.Base64;
 import android.util.Log;
 
 import com.fi.uba.udpsocket.domain.PingStatus;
+import com.fi.uba.udpsocket.service.AlarmReceiver;
 import com.fi.uba.udpsocket.utils.KeyManager;
 import com.fi.uba.udpsocket.utils.StringHelper;
 import com.fi.uba.udpsocket.utils.TimeHelper;
 import com.fi.uba.udpsocket.utils.TimeLogHelper;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Random;
 
 /**
  * Created by adrian on 24/02/15.
@@ -54,10 +43,13 @@ public class UdpService extends IntentService {
 
         // We need the installation name in the service to get the key pair
         String installationName = intent.getStringExtra("installation");
-        String address = intent.getStringExtra("address");
-        int port = intent.getIntExtra("port", 0);
+        //String address = intent.getStringExtra("address");
+        //int port = intent.getIntExtra("port", 0);
 
         PingStatus.getInstance().updateValues();
+
+        String address = "10.0.3.2";
+        int port = 10001;
 
         // Create the communication channel
         DatagramSocket socket = createCommunicationChannel(address, port);
@@ -153,13 +145,13 @@ public class UdpService extends IntentService {
             String messageBase64Encoded = Base64.encodeToString(fileMessage.getBytes(), Base64.NO_WRAP);
 
 
-            Log.i("UdpService longMessage - Encoded public key",PEMPublicKeyBase64Encoded);
+            /*Log.i("UdpService - Encoded public",PEMPublicKeyBase64Encoded);
 
-            Log.i("UdpService longMessage - Sign",String.valueOf(sign));
-            Log.i("UdpService longMessage - SignEncoded",signBase64Encoded);
+            Log.i("UdpService - Sign",String.valueOf(sign));
+            Log.i("UdpService - SignEncoded",signBase64Encoded);
 
-            Log.i("UdpService longMessage - FileMessage",fileMessage);
-            Log.i("UdpService longMessage - FileMessageEncoded",messageBase64Encoded);
+            Log.i("UdpService - FileMessage",fileMessage);
+            Log.i("UdpService - FileMessageEncoded",messageBase64Encoded);*/
 
             longMessage = "DATA;;" + PEMPublicKeyBase64Encoded + ";;" + signBase64Encoded + ";;" + logFileName + ";;" + messageBase64Encoded + ";;";
 

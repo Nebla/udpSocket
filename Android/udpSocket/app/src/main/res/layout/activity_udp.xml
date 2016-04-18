@@ -42,13 +42,13 @@
     <Button android:id="@+id/btnStartService"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/start_service"
+        android:text="@string/button_start_service"
         android:onClick="startService"/>
 
     <Button android:id="@+id/btnStopService"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/stop_service"
+        android:text="@string/button_stop_service"
         android:onClick="stopService" />
 
     <TextView android:id="@+id/fileTest"

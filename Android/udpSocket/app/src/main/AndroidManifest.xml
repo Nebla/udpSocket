@@ -1,47 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.fi.uba.udpsocket" >
+    package="com.fi.uba.udpsocket">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
 
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
         <activity
             android:name=".screens.login.LoginActivity"
-            android:label="@string/title_activity_login" >
-        </activity>
+            android:label="@string/title_activity_login" />
         <activity
             android:name=".screens.login.CreateActivity"
-            android:label="@string/title_activity_create" >
-        </activity>
+            android:label="@string/title_activity_create" />
         <activity
             android:name=".UdpActivity"
-            android:label="@string/app_name" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:label="@string/app_name"></activity>
 
         <service
-            android:name=".UdpService"
-            android:exported="false">
-        </service>
+            android:name=".service.UdpService"
+            android:exported="false" />
 
         <receiver
-            android:name=".AlarmReceiver"
-            android:process=":remote" >
-        </receiver>
+            android:name=".service.AlarmReceiver"
+            android:process=":remote" />
 
         <activity
             android:name=".screens.installations.InstallationsActivity"
-            android:label="@string/title_activity_installations" >
+            android:label="@string/title_activity_installations" />
+        <activity android:name=".screens.splash.SplashActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
+        <activity android:name=".screens.installations.CurrentInstallationActivity"></activity>
     </application>
 
 </manifest>

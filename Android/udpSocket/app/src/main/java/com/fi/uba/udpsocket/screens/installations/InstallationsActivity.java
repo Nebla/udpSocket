@@ -1,7 +1,11 @@
 package com.fi.uba.udpsocket.screens.installations;
 
+import android.app.ActivityManager;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -15,6 +19,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.fi.uba.udpsocket.service.AlarmReceiver;
 import com.fi.uba.udpsocket.R;
 import com.fi.uba.udpsocket.domain.User;
 import com.fi.uba.udpsocket.screens.login.LoginActivity;
@@ -93,8 +98,7 @@ public class InstallationsActivity extends ActionBarActivity {
             else {
                 // If the name isn't empty neither repeated, we create a new installation
                 createNewInstallation(newInstallationName);
-                testKeys(newInstallationName);
-
+                //testKeys(newInstallationName);
             }
         }
     }
@@ -152,6 +156,96 @@ public class InstallationsActivity extends ActionBarActivity {
 
     private void showResult(String newInstallationName) {
 
+        SharedPreferences.Editor editor = getSharedPreferences("InstallationPreferences", MODE_PRIVATE).edit();
+        editor.putString("Installation", newInstallationName);
+        editor.apply();
+
+        this.startService(newInstallationName);
+    }
+
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void startService(String newInstallationName) {
+
+        Log.i("UdpActivity","Starting service");
+
+        /*EditText editText = (EditText) findViewById(R.id.edit_message);
+        String instName = editText.getText().toString();
+
+        EditText portText = (EditText) findViewById(R.id.edit_port);
+        String portString = portText.getText().toString();
+        int port;
+        try {
+            port = Integer.parseInt(portString);
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            Log.e("UdpActivity", "Invalid port number");
+            return;
+        }
+
+        EditText ipText = (EditText) findViewById(R.id.edit_address);
+        String ipAddress = ipText.getText().toString();
+        try {
+            InetAddress.getByName(ipAddress);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+            Log.e("UdpActivity", "Invalid ip address");
+            return;
+        }*/
+
+        // Construct an intent that will execute the AlarmReceiver
+        Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
+
+        //intent.putExtra("address",ipAddress);
+        //intent.putExtra("port",port);
+
+        intent.putExtra("installation",newInstallationName);
+
+        // Create a PendingIntent to be triggered when the alarm goes off
+        final PendingIntent pIntent = PendingIntent.getBroadcast(this, AlarmReceiver.REQUEST_CODE,
+                intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        // Setup periodic alarm every 1 second
+        long firstMillis = System.currentTimeMillis(); // first run of alarm is immediate
+        int intervalMillis = 1000; // 1 second
+        AlarmManager alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+        alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, firstMillis, intervalMillis, pIntent);
+    }
+
+    public void stopService(View view) {
+        Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
+        final PendingIntent pIntent = PendingIntent.getBroadcast(this, AlarmReceiver.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+        alarm.cancel(pIntent);
+
+        /* Test generated file
+        TextView textView = (TextView) findViewById(R.id.fileTest);
+        StringBuilder builder = null;
+        BufferedReader bufferedReader = null;
+        try {
+            bufferedReader = new BufferedReader(new FileReader(new
+                    File(getFilesDir()+ File.separator+"saraza")));
+
+            String read;
+            builder = new StringBuilder("");
+            while((read = bufferedReader.readLine()) != null){
+                builder.append(read);
+            }
+            bufferedReader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Log.d("Output", builder.toString());
+        textView.setText(builder.toString());*/
     }
 
     private void showError(String errorMessage) {
@@ -167,7 +261,8 @@ public class InstallationsActivity extends ActionBarActivity {
         keyManager.generateKeys(newInstallationName);
         String encodedPublicKey = keyManager.getBase64EncodedPemPublicKey(newInstallationName);
 
-        new CreateInstallationAsyncTask().execute(user.getId(), user.getPassword(), newInstallationName, encodedPublicKey);
+        AsyncTask task = new CreateInstallationAsyncTask().execute(user.getId(), user.getPassword(), newInstallationName, encodedPublicKey);
+
     }
 
 

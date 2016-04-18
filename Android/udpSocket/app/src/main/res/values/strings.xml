@@ -12,8 +12,12 @@
     <string name="edit_address">Enter server ip adrress</string>
     <string name="default_port">10000</string>
     <string name="edit_port">Enter server port</string>
-    <string name="start_service">Start Service</string>
-    <string name="stop_service">Stop Service</string>
+
+    <!--
+      <string name="start_service">Start Service</string>
+      <string name="stop_service">Stop Service</string>
+    -->
+
 
     <string name="title_activity_login">Login</string>
     <string name="title_activity_create">Crear Cuenta</string>
@@ -26,9 +30,13 @@
     <string name="button_create_account">Crear Cuenta</string>
 
     <string name="button_create_installation">Crear Instalación</string>
-    <string name="new_installation_label">
-        Seleccione un nombre para la nueva instalacion:
-    </string>
+    <string name="new_installation_label">Seleccione un nombre para la nueva instalacion:</string>
+
+    <string name="new_installation_hint">Instalacion</string>
+
+    <string name="button_stop_service">Stop service</string>
+    <string name="button_start_service">Start service</string>
+
 
     <string name="current_installations_label">
         Instalaciones actuales:
