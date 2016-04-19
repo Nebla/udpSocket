@@ -49,7 +49,7 @@ public class UdpService extends IntentService {
         PingStatus.getInstance().updateValues();
 
         String address = "10.0.3.2";
-        int port = 10001;
+        int port = 10000;
 
         // Create the communication channel
         DatagramSocket socket = createCommunicationChannel(address, port);

@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.EditText;
 
 import com.fi.uba.udpsocket.service.AlarmReceiver;
+import com.fi.uba.udpsocket.service.ServiceManager;
 import com.fi.uba.udpsocket.utils.KeyManager;
 
 import java.net.InetAddress;
@@ -73,12 +74,13 @@ public class UdpActivity extends Activity {
         KeyManager manager = new KeyManager(getApplicationContext());
         manager.generateKeys(instName);
 
-        Log.i("Udp Activity - Create installation",manager.getBase64EncodedPemPublicKey(instName));
+        Log.i("Udp Activity - Create installation", manager.getBase64EncodedPemPublicKey(instName));
     }
 
     public void startService(View view) {
 
-        Log.i("UdpActivity","Starting service");
+        ServiceManager.startService(getApplicationContext(),"TestInstallation");
+        /*Log.i("UdpActivity","Starting service");
 
         EditText editText = (EditText) findViewById(R.id.edit_message);
         String instName = editText.getText().toString();
@@ -121,14 +123,15 @@ public class UdpActivity extends Activity {
         long firstMillis = System.currentTimeMillis(); // first run of alarm is immediate
         int intervalMillis = 1000; // 1 second
         AlarmManager alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-        alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, firstMillis, intervalMillis, pIntent);
+        alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, firstMillis, intervalMillis, pIntent);*/
     }
 
     public void stopService(View view) {
-        Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
+        ServiceManager.stopService(getApplicationContext());
+        /*Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
         final PendingIntent pIntent = PendingIntent.getBroadcast(this, AlarmReceiver.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-        alarm.cancel(pIntent);
+        alarm.cancel(pIntent);*/
 
         /* Test generated file
         TextView textView = (TextView) findViewById(R.id.fileTest);

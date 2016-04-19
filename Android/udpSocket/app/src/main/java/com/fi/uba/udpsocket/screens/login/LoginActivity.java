@@ -50,30 +50,11 @@ public class LoginActivity extends ActionBarActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_login, menu);
         return false;
     }
 
-    /*@Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }*/
-
     public void createAccount(View view) {
-        /*Intent intent = new Intent(this, CreateActivity.class);
-        startActivity(intent);*/
-
         String baseUrl = getResources().getString(R.string.tix_base_url);
         String createAccount = getResources().getString(R.string.tix_create_account_url);
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(baseUrl + createAccount));
@@ -136,10 +117,6 @@ public class LoginActivity extends ActionBarActivity {
             User user = null;
             try {
                 user = httpClient.execute(httpRequest, responseHandler);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (IllegalStateException e) {
-                e.printStackTrace();
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {

@@ -23,6 +23,7 @@ import com.fi.uba.udpsocket.service.AlarmReceiver;
 import com.fi.uba.udpsocket.R;
 import com.fi.uba.udpsocket.domain.User;
 import com.fi.uba.udpsocket.screens.login.LoginActivity;
+import com.fi.uba.udpsocket.service.ServiceManager;
 import com.fi.uba.udpsocket.utils.KeyManager;
 
 import org.apache.http.HttpResponse;
@@ -160,24 +161,15 @@ public class InstallationsActivity extends ActionBarActivity {
         editor.putString("Installation", newInstallationName);
         editor.apply();
 
-        this.startService(newInstallationName);
+        ServiceManager.startService(getApplicationContext(), newInstallationName);
     }
 
-    private boolean isMyServiceRunning(Class<?> serviceClass) {
-        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.getName().equals(service.service.getClassName())) {
-                return true;
-            }
-        }
-        return false;
-    }
 
-    private void startService(String newInstallationName) {
+    /*private void startService(String newInstallationName) {
 
         Log.i("UdpActivity","Starting service");
 
-        /*EditText editText = (EditText) findViewById(R.id.edit_message);
+        EditText editText = (EditText) findViewById(R.id.edit_message);
         String instName = editText.getText().toString();
 
         EditText portText = (EditText) findViewById(R.id.edit_port);
@@ -199,7 +191,7 @@ public class InstallationsActivity extends ActionBarActivity {
             e.printStackTrace();
             Log.e("UdpActivity", "Invalid ip address");
             return;
-        }*/
+        }
 
         // Construct an intent that will execute the AlarmReceiver
         Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
@@ -218,7 +210,7 @@ public class InstallationsActivity extends ActionBarActivity {
         int intervalMillis = 1000; // 1 second
         AlarmManager alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
         alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, firstMillis, intervalMillis, pIntent);
-    }
+    }*/
 
     public void stopService(View view) {
         Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);

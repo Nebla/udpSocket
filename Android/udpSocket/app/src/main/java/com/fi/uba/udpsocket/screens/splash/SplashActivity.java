@@ -9,6 +9,7 @@ import com.fi.uba.udpsocket.R;
 import com.fi.uba.udpsocket.screens.installations.CurrentInstallationActivity;
 import com.fi.uba.udpsocket.screens.installations.InstallationsActivity;
 import com.fi.uba.udpsocket.screens.login.LoginActivity;
+import com.fi.uba.udpsocket.service.ServiceManager;
 
 public class SplashActivity extends ActionBarActivity {
 
@@ -20,6 +21,9 @@ public class SplashActivity extends ActionBarActivity {
         SharedPreferences prefs = getSharedPreferences("InstallationPreferences", MODE_PRIVATE);
         String installationName = prefs.getString("Installation", null);
         if (installationName != null) {
+            // Start the service if it's not already running
+            //ServiceManager.startService(getApplicationContext(), installationName);
+
             // Show the installation status
             Intent intent = new Intent(this, CurrentInstallationActivity.class);
             startActivity(intent);

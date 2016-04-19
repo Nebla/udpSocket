@@ -45,7 +45,7 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
-public class KeyManager extends Activity {
+public class KeyManager {
 
     Context context;
 
