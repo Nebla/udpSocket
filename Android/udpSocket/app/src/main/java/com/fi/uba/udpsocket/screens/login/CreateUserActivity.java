@@ -8,7 +8,7 @@ import com.fi.uba.udpsocket.R;
 /**
  * Created by adrian on 06/06/15.
  */
-public class CreateActivity extends ActionBarActivity {
+public class CreateUserActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

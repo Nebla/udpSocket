@@ -18,10 +18,10 @@
       <string name="stop_service">Stop Service</string>
     -->
 
-
     <string name="title_activity_login">Login</string>
     <string name="title_activity_create">Crear Cuenta</string>
     <string name="title_activity_installations">Instalaciones</string>
+    <string name="title_current_installations">Instalacion actual</string>
 
     <string name="username_placeholder">Email</string>
     <string name="password_placeholder">Contraseña</string>

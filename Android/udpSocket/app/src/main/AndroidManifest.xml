@@ -1,24 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.fi.uba.udpsocket">
+    package="com.fi.uba.udpsocket" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme" >
+
         <activity
             android:name=".screens.login.LoginActivity"
             android:label="@string/title_activity_login" />
+
         <activity
-            android:name=".screens.login.CreateActivity"
+            android:name=".screens.login.CreateUserActivity"
             android:label="@string/title_activity_create" />
+
         <activity
             android:name=".UdpActivity"
-            android:label="@string/app_name"></activity>
+            android:label="@string/app_name" >
+        </activity>
+
+        <activity
+            android:name=".screens.installations.InstallationsActivity"
+            android:label="@string/title_activity_installations" />
+
+        <activity android:name=".screens.splash.SplashActivity" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".screens.installations.CurrentInstallationActivity"
+            android:label="@string/title_current_installations" />
+
 
         <service
             android:name=".service.UdpService"
@@ -28,17 +49,15 @@
             android:name=".service.AlarmReceiver"
             android:process=":remote" />
 
-        <activity
-            android:name=".screens.installations.InstallationsActivity"
-            android:label="@string/title_activity_installations" />
-        <activity android:name=".screens.splash.SplashActivity">
+        <!-- Declaring broadcast receiver for BOOT_COMPLETED event. -->
+        <receiver android:name=".service.BootBroadcastReceiver"
+            android:enabled="true"
+            android:exported="false">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
-        </activity>
-        <activity android:name=".screens.installations.CurrentInstallationActivity"></activity>
+        </receiver>
+
     </application>
 
 </manifest>
