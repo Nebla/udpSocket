@@ -9,4 +9,9 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.fi.uba.udpsocket.screens.installations.CurrentInstallationActivity">
 
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/button_stop_service"
+        android:onClick="stopService"/>
 </RelativeLayout>
