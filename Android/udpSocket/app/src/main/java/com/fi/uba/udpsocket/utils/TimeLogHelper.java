@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import android.util.Log;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * Created by adrian on 09/04/16.
@@ -40,12 +41,12 @@ public class TimeLogHelper {
 
         FileOutputStream outputStream;
 
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy|k:m:s,S");
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy|k:mm:s,S", Locale.getDefault());
         String currentDateandTime = sdf.format(new Date());
 
         String log = currentDateandTime + " " + message + "\n";
 
-        Log.i("Time Log - Log:",log);
+        Log.i("Time Log - Log",log);
         try {
             outputStream = context.openFileOutput(fileName, Context.MODE_APPEND);
             outputStream.write(log.getBytes());
