@@ -155,62 +155,27 @@ public class InstallationsActivity extends ActionBarActivity {
         resultTextView.setText(finalResult);
     }
 
-    private void showResult(String newInstallationName) {
+    private void showResult(String resultInstallationName) {
+
+        EditText resultTextView = (EditText) findViewById(R.id.installation_name_text);
+        String installationName = resultTextView.getText().toString();
 
         SharedPreferences.Editor editor = getSharedPreferences("InstallationPreferences", MODE_PRIVATE).edit();
-        editor.putString("Installation", newInstallationName);
+        editor.putString("Installation", installationName);
         editor.apply();
 
-        ServiceManager.startService(getApplicationContext(), newInstallationName);
+        ServiceManager.startService(getApplicationContext(), installationName);
     }
 
 
-    /*private void startService(String newInstallationName) {
+    private void startService(View view) {
+        EditText resultTextView = (EditText) findViewById(R.id.installation_name_text);
+        String newInstallationName = resultTextView.getText().toString();
 
         Log.i("UdpActivity","Starting service");
+        ServiceManager.startService(getApplicationContext(),newInstallationName);
 
-        EditText editText = (EditText) findViewById(R.id.edit_message);
-        String instName = editText.getText().toString();
-
-        EditText portText = (EditText) findViewById(R.id.edit_port);
-        String portString = portText.getText().toString();
-        int port;
-        try {
-            port = Integer.parseInt(portString);
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-            Log.e("UdpActivity", "Invalid port number");
-            return;
-        }
-
-        EditText ipText = (EditText) findViewById(R.id.edit_address);
-        String ipAddress = ipText.getText().toString();
-        try {
-            InetAddress.getByName(ipAddress);
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-            Log.e("UdpActivity", "Invalid ip address");
-            return;
-        }
-
-        // Construct an intent that will execute the AlarmReceiver
-        Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
-
-        //intent.putExtra("address",ipAddress);
-        //intent.putExtra("port",port);
-
-        intent.putExtra("installation",newInstallationName);
-
-        // Create a PendingIntent to be triggered when the alarm goes off
-        final PendingIntent pIntent = PendingIntent.getBroadcast(this, AlarmReceiver.REQUEST_CODE,
-                intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        // Setup periodic alarm every 1 second
-        long firstMillis = System.currentTimeMillis(); // first run of alarm is immediate
-        int intervalMillis = 1000; // 1 second
-        AlarmManager alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-        alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, firstMillis, intervalMillis, pIntent);
-    }*/
+    }
 
     public void stopService(View view) {
         Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
@@ -249,7 +214,7 @@ public class InstallationsActivity extends ActionBarActivity {
 
     private void createNewInstallation(String newInstallationName) {
 
-        KeyManager keyManager = new KeyManager(this.getApplicationContext());
+        KeyManager keyManager = new KeyManager(getApplicationContext());
         keyManager.generateKeys(newInstallationName);
         String encodedPublicKey = keyManager.getBase64EncodedPemPublicKey(newInstallationName);
 
