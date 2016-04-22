@@ -47,7 +47,7 @@ import javax.crypto.NoSuchPaddingException;
 
 public class KeyManager {
 
-    Context context;
+    private Context context;
 
     public KeyManager(Context context){
         this.context = context;
@@ -74,9 +74,7 @@ public class KeyManager {
             out.write(data);
             out.close();
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
+        } catch (IOException | NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
     }
@@ -94,13 +92,7 @@ public class KeyManager {
             X509EncodedKeySpec keySpec = new X509EncodedKeySpec(data);
             KeyFactory kf = KeyFactory.getInstance("RSA");
             pubKey = kf.generatePublic(keySpec);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (InvalidKeySpecException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (InvalidKeySpecException | IOException | NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
 
@@ -154,13 +146,7 @@ public class KeyManager {
             PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(data);
             KeyFactory kf = KeyFactory.getInstance("RSA");
             privKey = kf.generatePrivate(keySpec);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (InvalidKeySpecException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (InvalidKeySpecException | IOException | NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
         return privKey;
@@ -189,31 +175,17 @@ public class KeyManager {
     public byte[] signMessageUsingSHA1(String keyAlias, String message) {
 
 
-        Provider[] providers = Security.getProviders();
+        /*Provider[] providers = Security.getProviders();
         for (Provider provider : providers) {
             Log.i("CRYPTO","provider: "+provider.getName());
             Set<Provider.Service> services = provider.getServices();
             for (Provider.Service service : services) {
                 Log.i("CRYPTO","  algorithm: "+service.getAlgorithm());
             }
-        }
-
+        }*/
 
         byte []signed = new byte[0];
         try {
-            // Compute digest
-            //MessageDigest sha1 = MessageDigest.getInstance("SHA1");
-            //byte[] digest = sha1.digest(message.getBytes());
-
-            //Log.i("Key Manager", byteArray2Hex(digest));
-
-            // Encrypt digest
-            //Cipher cipher = Cipher.getInstance("RSA");
-            //cipher.init(Cipher.ENCRYPT_MODE, this.getPrivateKey(keyAlias));
-            //signed = cipher.doFinal(digest);
-
-
-
             Signature instance = Signature.getInstance("SHA1WithRSAEncryption","BC");
             instance.initSign(this.getPrivateKey(keyAlias));
             instance.update(message.getBytes());
