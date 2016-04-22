@@ -29,6 +29,12 @@ public class ServiceManager {
         AlarmManager alarm = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, firstMillis, intervalMillis, pIntent);
 
+        //A new execution is set
+        /*AlarmManager mAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        Intent mIntent = new Intent(this, ServiceCheckStatus.class);
+        PendingIntent mPendingIntent = PendingIntent.getService(this, 0,  mIntent, PendingIntent.FLAG_ONE_SHOT);
+        mAlarmManager.set(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + PERIOD, mPendingIntent);*/
+
     }
 
     static public void stopService(Context context) {

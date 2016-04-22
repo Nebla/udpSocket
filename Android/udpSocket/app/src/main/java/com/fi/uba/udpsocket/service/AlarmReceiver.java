@@ -21,8 +21,8 @@ public class AlarmReceiver extends BroadcastReceiver {
         Intent i = new Intent(context, UdpService.class);
 
         i.putExtra("installation", intent.getStringExtra("installation"));
-        i.putExtra("address", intent.getStringExtra("address"));
-        i.putExtra("port", intent.getIntExtra("port", 0));
+        //i.putExtra("address", intent.getStringExtra("address"));
+        //i.putExtra("port", intent.getIntExtra("port", 0));
 
         context.startService(i);
     }

@@ -14,7 +14,8 @@
 
         <activity
             android:name=".screens.login.LoginActivity"
-            android:label="@string/title_activity_login" />
+            android:label="@string/title_activity_login">
+        </activity>
 
         <activity
             android:name=".screens.login.CreateUserActivity"
@@ -23,6 +24,7 @@
         <activity
             android:name=".UdpActivity"
             android:label="@string/app_name" >
+
         </activity>
 
         <activity
@@ -32,7 +34,6 @@
         <activity android:name=".screens.splash.SplashActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
