@@ -16,24 +16,26 @@ public class ServiceManager {
         Log.i("Service Manager", "Starting service");
 
         // Construct an intent that will execute the AlarmReceiver
-        Intent intent = new Intent(context, AlarmReceiver.class);
-        intent.putExtra("installation",installation);
+        //Intent intent = new Intent(context, AlarmReceiver.class);
+        //intent.putExtra("installation",installation);
 
         // Create a PendingIntent to be triggered when the alarm goes off
-        final PendingIntent pIntent = PendingIntent.getBroadcast(context, AlarmReceiver.REQUEST_CODE,
-                intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        //final PendingIntent pIntent = PendingIntent.getBroadcast(context, AlarmReceiver.REQUEST_CODE,
+        //        intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         // Setup periodic alarm every 1 second
         long firstMillis = System.currentTimeMillis(); // first run of alarm is immediate
         int intervalMillis = 1000; // 1 second
-        AlarmManager alarm = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, firstMillis, intervalMillis, pIntent);
+        //AlarmManager alarm = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        //alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, firstMillis, intervalMillis, pIntent);
 
         //A new execution is set
-        /*AlarmManager mAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        Intent mIntent = new Intent(this, ServiceCheckStatus.class);
-        PendingIntent mPendingIntent = PendingIntent.getService(this, 0,  mIntent, PendingIntent.FLAG_ONE_SHOT);
-        mAlarmManager.set(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + PERIOD, mPendingIntent);*/
+        AlarmManager mAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent mIntent = new Intent(context, UdpService.class);
+        mIntent.putExtra("installation",installation);
+
+        PendingIntent mPendingIntent = PendingIntent.getService(context, 0,  mIntent, PendingIntent.FLAG_ONE_SHOT);
+        mAlarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, firstMillis, intervalMillis, mPendingIntent);
 
     }
 
