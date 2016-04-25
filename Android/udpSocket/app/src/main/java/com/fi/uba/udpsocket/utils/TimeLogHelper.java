@@ -41,7 +41,7 @@ public class TimeLogHelper {
 
         FileOutputStream outputStream;
 
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy|k:mm:s,S", Locale.getDefault());
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy|k:mm:ss,S000", Locale.getDefault());
         String currentDateandTime = sdf.format(new Date());
 
         String log = currentDateandTime + " " + message + "\n";
