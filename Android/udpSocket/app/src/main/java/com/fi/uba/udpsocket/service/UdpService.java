@@ -4,8 +4,11 @@ import android.app.AlarmManager;
 import android.app.IntentService;
 
 import android.app.PendingIntent;
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.os.IBinder;
+import android.support.annotation.Nullable;
 import android.util.Base64;
 import android.util.Log;
 
@@ -17,6 +20,7 @@ import com.fi.uba.udpsocket.utils.TimeHelper;
 import com.fi.uba.udpsocket.utils.TimeLogHelper;
 
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -29,17 +33,20 @@ import java.net.UnknownHostException;
 public class UdpService extends IntentService {
 
     // Constants
+    private static final String logTag = UdpService.class.getSimpleName();
     private static final String logFileBase = "log";
     private static final int longMessageSize = 4400;
 
     public UdpService() {
         super("UdpService");
+        Log.i(logTag,"Created");
+        setIntentRedelivery(true);
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
 
-        Log.i("Udp Service", "Launched");
+        Log.i(logTag, "Launched");
 
         // We need the installation name in the service to get the key pair
         String installationName = intent.getStringExtra("installation");
@@ -92,11 +99,16 @@ public class UdpService extends IntentService {
         // Server response
         DatagramPacket packet = new DatagramPacket(message.getBytes(), message.getBytes().length);
         try {
-            Log.d("UdpService", "Sending packet: " + message);
+            Log.d(logTag, "Sending packet: " + message);
             socket.send(packet);
-        } catch (IOException e) {
+        }
+        catch (InterruptedIOException e) {
             e.printStackTrace();
-            this.cancelOnError("IOException");
+            return;
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            //this.cancelOnError("IOException");
         }
 
         byte[] recievedMessage = new byte[8192];
@@ -104,12 +116,18 @@ public class UdpService extends IntentService {
 
         try {
             socket.receive(packet);
-        } catch (IOException e) {
+        }
+        catch (InterruptedIOException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        catch (IOException e) {
             e.printStackTrace();
         }
 
         String response = new String(packet.getData(), 0, packet.getLength());
-        Log.i("Response", response);
+        Log.i(logTag, "Response; "+response);
 
         String[] separatedResponse = response.split("\\|");
         String data = separatedResponse[0] + "|" + separatedResponse[1] + "|" + separatedResponse[2] + "|" + TimeHelper.stringTimeStamp(); //#+ '|' + msg[4], en msg[4] queda el contenido del mensaje largo sin imprimir
@@ -126,7 +144,7 @@ public class UdpService extends IntentService {
         String logFileName = logFileBase + "_" + PingStatus.getInstance().currentFileName();
         TimeLogHelper.logTimeMessage(this.getApplicationContext(), logFileName, "|" + packetLength + "|" + data);
 
-        Log.i("Udp Service", "Finished");
+        Log.i(logTag, "Finished");
     }
 
     private String longMessage(String installationName, String told) {
@@ -173,6 +191,7 @@ public class UdpService extends IntentService {
             socket = new DatagramSocket();
             InetAddress ipAddress = InetAddress.getByName(address);
             socket.connect(ipAddress, port);
+            socket.setSoTimeout(900);
         }
         catch (SocketException e) {
             e.printStackTrace();
@@ -186,7 +205,7 @@ public class UdpService extends IntentService {
     }
 
     private void cancelOnError(String errorMessage) {
-        Log.e("UdpService", errorMessage);
+        Log.e(logTag, errorMessage);
         Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
         final PendingIntent pIntent = PendingIntent.getBroadcast(this, AlarmReceiver.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
