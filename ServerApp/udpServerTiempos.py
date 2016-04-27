@@ -287,8 +287,9 @@ class ThreadingUDPRequestHandler(SocketServer.BaseRequestHandler):
 
                 if rsa.verify(client_plain_msg, client_signed_msg, pubKey):
                     # logger.debug("Chequeo de integridad satisfactorio para " + client_msg_filename)
-                    client_data = dbmanager.DBManager.getInstallationAndClientId(client_pub_key_str_b64)
+                    #client_data = dbmanager.DBManager.getInstallationAndClientId(client_pub_key_str_b64)
                     # logger.debug("Se ha obtenido la siguiente client_data " + str(client_data))
+                    client_data = [1, 1]
 
                     if client_data is not None:
                         installation_id = client_data[0]
