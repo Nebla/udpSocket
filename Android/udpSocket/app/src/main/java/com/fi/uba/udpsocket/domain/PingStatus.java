@@ -26,7 +26,7 @@ public class PingStatus {
         sendAllData = false;
 
         currentDate = TimeHelper.currentDate();
-        currentFilename = String.valueOf(currentDate.getTime());
+        currentFilename = String.valueOf(currentDate.getTime()/1000);
         lastFileName = "";
     }
 
@@ -70,7 +70,7 @@ public class PingStatus {
             // We must check if the next is a long message, because in the other case, it could happen that a short message comes, and this values are reseted
             lastFileName = currentFilename;
             currentDate = now;
-            currentFilename = String.valueOf(currentDate.getTime());
+            currentFilename = String.valueOf(currentDate.getTime()/1000); // currentFileName should be in seconds, while getTime() returns miliseconds
             sendAllData = true;
         }
         else {
