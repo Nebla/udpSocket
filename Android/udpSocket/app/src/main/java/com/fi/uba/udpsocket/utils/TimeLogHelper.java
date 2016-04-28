@@ -26,6 +26,7 @@ public class TimeLogHelper {
             String line;
             while ((line = bufferedReader.readLine()) != null) {
                 builder.append(line);
+                builder.append(System.getProperty("line.separator"));
             }
         }
         catch (IOException e) {
@@ -41,7 +42,7 @@ public class TimeLogHelper {
 
         FileOutputStream outputStream;
 
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy|k:mm:ss,S000", Locale.getDefault());
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy|kk:mm:ss,S000", Locale.getDefault());
         String currentDateandTime = sdf.format(new Date());
 
         String log = currentDateandTime + " " + message + "\n";
