@@ -35,7 +35,7 @@ public class UdpService extends IntentService {
     // Constants
     private static final String logTag = UdpService.class.getSimpleName();
     private static final String logFileBase = "log";
-    private static final int longMessageSize = 4400;
+    private static final int longMessageSize = 4399;
 
     public UdpService() {
         super("UdpService");
@@ -116,18 +116,13 @@ public class UdpService extends IntentService {
 
         try {
             socket.receive(packet);
-        }
-        catch (InterruptedIOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             return;
         }
 
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-
         String response = new String(packet.getData(), 0, packet.getLength());
-        Log.i(logTag, "Response; "+response);
+        Log.i(logTag, "Response: "+response);
 
         String[] separatedResponse = response.split("\\|");
         String data = separatedResponse[0] + "|" + separatedResponse[1] + "|" + separatedResponse[2] + "|" + TimeHelper.stringTimeStamp(); //#+ '|' + msg[4], en msg[4] queda el contenido del mensaje largo sin imprimir
