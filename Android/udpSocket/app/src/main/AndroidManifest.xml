@@ -59,6 +59,15 @@
             </intent-filter>
         </receiver>
 
+        <!-- Declaring broadcast receiver for CONNECTIVITY_ACTION event. -->
+        <receiver android:name=".service.ConnectivityBroadcastReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.nett.conn.CONNECTIVITY_CHANGE"/>
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>
