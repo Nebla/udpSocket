@@ -83,15 +83,17 @@ public class KeyManager {
 
     public PublicKey getPublicKey (String alias) {
         PublicKey pubKey = null;
+        DataInputStream in = null;
         try {
             String pubKeyFile = alias + ".pub";
-            DataInputStream in= new DataInputStream(this.context.openFileInput(pubKeyFile));
+            in = new DataInputStream(this.context.openFileInput(pubKeyFile));
             byte[] data=new byte[in.available()];
             in.readFully(data);
 
             X509EncodedKeySpec keySpec = new X509EncodedKeySpec(data);
             KeyFactory kf = KeyFactory.getInstance("RSA");
             pubKey = kf.generatePublic(keySpec);
+            in.close();
         } catch (InvalidKeySpecException | IOException | NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
@@ -146,6 +148,8 @@ public class KeyManager {
             PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(data);
             KeyFactory kf = KeyFactory.getInstance("RSA");
             privKey = kf.generatePrivate(keySpec);
+
+            in.close();
         } catch (InvalidKeySpecException | IOException | NoSuchAlgorithmException e) {
             e.printStackTrace();
         }

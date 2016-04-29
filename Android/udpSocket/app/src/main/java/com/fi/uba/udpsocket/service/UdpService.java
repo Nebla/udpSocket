@@ -50,8 +50,6 @@ public class UdpService extends IntentService {
 
         // We need the installation name in the service to get the key pair
         String installationName = intent.getStringExtra("installation");
-        //String address = intent.getStringExtra("address");
-        //int port = intent.getIntExtra("port", 0);
 
         PingStatus.getInstance().updateValues();
 
@@ -102,13 +100,10 @@ public class UdpService extends IntentService {
             Log.d(logTag, "Sending packet: " + message);
             socket.send(packet);
         }
-        catch (InterruptedIOException e) {
-            e.printStackTrace();
-            return;
-        }
         catch (IOException e) {
             e.printStackTrace();
-            //this.cancelOnError("IOException");
+            socket.close();
+            return;
         }
 
         byte[] recievedMessage = new byte[8192];
@@ -118,8 +113,11 @@ public class UdpService extends IntentService {
             socket.receive(packet);
         } catch (IOException e) {
             e.printStackTrace();
+            socket.close();
             return;
         }
+
+        socket.close();
 
         String response = new String(packet.getData(), 0, packet.getLength());
         Log.i(logTag, "Response: "+response);

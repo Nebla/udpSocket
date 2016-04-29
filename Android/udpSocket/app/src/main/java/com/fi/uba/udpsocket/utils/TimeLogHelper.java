@@ -28,6 +28,7 @@ public class TimeLogHelper {
                 builder.append(line);
                 builder.append(System.getProperty("line.separator"));
             }
+            inputStream.close();
         }
         catch (IOException e) {
             Log.e("TimeLogHelper - read", e.getMessage());
