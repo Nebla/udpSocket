@@ -108,13 +108,12 @@ public class InstallationsActivity extends ActionBarActivity {
         EditText text = (EditText) findViewById(R.id.installation_name_text);
         String testString = text.getText().toString();
 
-        KeyManager keyManager = new KeyManager(this.getApplicationContext());
 
         byte[] encryptedBytes = null;
         Cipher cipher = null;
         try {
             cipher = Cipher.getInstance("RSA");
-            cipher.init(Cipher.ENCRYPT_MODE, keyManager.getPublicKey(newInstallationName));
+            cipher.init(Cipher.ENCRYPT_MODE, KeyManager.getPublicKey(getApplicationContext(), newInstallationName));
             encryptedBytes = cipher.doFinal(testString.getBytes());
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
@@ -132,7 +131,7 @@ public class InstallationsActivity extends ActionBarActivity {
         Cipher decipher = null;
         try {
             decipher = Cipher.getInstance("RSA");
-            decipher.init(Cipher.DECRYPT_MODE, keyManager.getPrivateKey(newInstallationName));
+            decipher.init(Cipher.DECRYPT_MODE, KeyManager.getPrivateKey(getApplicationContext(), newInstallationName));
             result = decipher.doFinal(encryptedBytes);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
@@ -150,8 +149,8 @@ public class InstallationsActivity extends ActionBarActivity {
 
         String finalResult = "Encoded:\n"+new String(encryptedBytes) +
                             "\nDecoded:\n"+new String(result)+
-                            "\nPublic Key:\n"+ keyManager.getPemPublicKey(newInstallationName) +
-                            "\nEncoded public key:\n"+keyManager.getBase64EncodedPemPublicKey(newInstallationName);
+                            "\nPublic Key:\n"+ KeyManager.getPemPublicKey(getApplicationContext(), newInstallationName) +
+                            "\nEncoded public key:\n"+KeyManager.getBase64EncodedPemPublicKey(getApplicationContext(), newInstallationName);
         resultTextView.setText(finalResult);
     }
 
@@ -214,9 +213,8 @@ public class InstallationsActivity extends ActionBarActivity {
 
     private void createNewInstallation(String newInstallationName) {
 
-        KeyManager keyManager = new KeyManager(getApplicationContext());
-        keyManager.generateKeys(newInstallationName);
-        String encodedPublicKey = keyManager.getBase64EncodedPemPublicKey(newInstallationName);
+        KeyManager.generateKeys(getApplicationContext(), newInstallationName);
+        String encodedPublicKey = KeyManager.getBase64EncodedPemPublicKey(getApplicationContext(), newInstallationName);
 
         AsyncTask task = new CreateInstallationAsyncTask().execute(user.getId(), user.getPassword(), newInstallationName, encodedPublicKey);
 

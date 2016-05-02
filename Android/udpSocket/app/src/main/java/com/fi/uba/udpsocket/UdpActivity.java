@@ -71,10 +71,11 @@ public class UdpActivity extends Activity {
         EditText editText = (EditText) findViewById(R.id.edit_message);
         String instName = editText.getText().toString();
 
-        KeyManager manager = new KeyManager(getApplicationContext());
-        manager.generateKeys(instName);
 
-        Log.i("Udp Activity - Create installation", manager.getBase64EncodedPemPublicKey(instName));
+        KeyManager.generateKeys(getApplicationContext(), instName);
+
+        String result = KeyManager.getBase64EncodedPemPublicKey(getApplicationContext(), instName);
+        Log.i("UdpActivity - Create installation", result);
     }
 
     public void startService(View view) {

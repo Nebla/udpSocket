@@ -47,14 +47,12 @@ import javax.crypto.NoSuchPaddingException;
 
 public class KeyManager {
 
-    private Context context;
 
-    public KeyManager(Context context){
-        this.context = context;
+    private KeyManager(){
     }
 
     /* Key generation */
-    public boolean generateKeys(String alias) {
+    public static boolean generateKeys(Context context, String alias) {
         boolean success = true;
         DataOutputStream outputStream = null;
         try {
@@ -63,13 +61,13 @@ public class KeyManager {
             KeyPair keyPair = kpg.generateKeyPair();
 
             // Save the private key
-            outputStream = new DataOutputStream(this.context.openFileOutput(alias, Context.MODE_PRIVATE));
+            outputStream = new DataOutputStream(context.openFileOutput(alias, Context.MODE_PRIVATE));
             byte[] data = keyPair.getPrivate().getEncoded();
             outputStream.write(data);
 
             // Save the public key
             String pubKeyFile = alias + ".pub";
-            outputStream = new DataOutputStream(this.context.openFileOutput(pubKeyFile, Context.MODE_PRIVATE));
+            outputStream = new DataOutputStream(context.openFileOutput(pubKeyFile, Context.MODE_PRIVATE));
             data = keyPair.getPublic().getEncoded();
             outputStream.write(data);
 
@@ -90,19 +88,19 @@ public class KeyManager {
     }
 
     /* Public key */
-
-    public PublicKey getPublicKey (String alias) {
-        PublicKey pubKey = null;
+    public static PublicKey getPublicKey (Context context, String alias) {
+        PublicKey publicKey = null;
         DataInputStream in = null;
         try {
             String pubKeyFile = alias + ".pub";
-            in = new DataInputStream(this.context.openFileInput(pubKeyFile));
-            byte[] data=new byte[in.available()];
+            in = new DataInputStream(context.openFileInput(pubKeyFile));
+            byte[] data = new byte[in.available()];
             in.readFully(data);
 
             X509EncodedKeySpec keySpec = new X509EncodedKeySpec(data);
             KeyFactory kf = KeyFactory.getInstance("RSA");
-            pubKey = kf.generatePublic(keySpec);
+            publicKey = kf.generatePublic(keySpec);
+
 
         } catch (InvalidKeySpecException | IOException | NoSuchAlgorithmException e) {
             e.printStackTrace();
@@ -116,12 +114,11 @@ public class KeyManager {
             }
         }
 
-
-        return pubKey;
+        return publicKey;
     }
 
-    public byte[] getPkcs1PublicKey(String alias) {
-        PublicKey pub = this.getPublicKey(alias);
+    public static byte[] getPkcs1PublicKey(Context context, String alias) {
+        PublicKey pub = KeyManager.getPublicKey(context, alias);
         byte[] pubBytes = pub.getEncoded();
 
         SubjectPublicKeyInfo spkInfo = SubjectPublicKeyInfo.getInstance(pubBytes);
@@ -136,8 +133,8 @@ public class KeyManager {
         return publicKeyPKCS1;
     }
 
-    public String getPemPublicKey (String alias) {
-        PemObject pemObject = new PemObject("RSA PUBLIC KEY", this.getPkcs1PublicKey(alias));
+    public static String getPemPublicKey (Context context, String alias) {
+        PemObject pemObject = new PemObject("RSA PUBLIC KEY", KeyManager.getPkcs1PublicKey(context, alias));
         StringWriter stringWriter = new StringWriter();
         PemWriter pemWriter = new PemWriter(stringWriter);
         try {
@@ -156,17 +153,17 @@ public class KeyManager {
         return stringWriter.toString();
     }
 
-    public String getBase64EncodedPemPublicKey (String alias) {
-        String pemPublicKey = this.getPemPublicKey(alias);
+    public static String getBase64EncodedPemPublicKey (Context context, String alias) {
+        String pemPublicKey = KeyManager.getPemPublicKey(context, alias);
         return Base64.encodeToString(pemPublicKey.getBytes(), Base64.NO_WRAP | Base64.NO_PADDING | Base64.URL_SAFE);
     }
 
     /* Private Key */
-    public PrivateKey getPrivateKey (String alias) {
+    public static PrivateKey getPrivateKey (Context context, String alias) {
         PrivateKey privKey = null;
         DataInputStream inputStream = null;
         try {
-            inputStream = new DataInputStream(this.context.openFileInput(alias));
+            inputStream = new DataInputStream(context.openFileInput(alias));
             byte[] data = new byte[inputStream.available()];
             inputStream.readFully(data);
 
@@ -188,8 +185,8 @@ public class KeyManager {
         return privKey;
     }
 
-    public byte[] getPkcs1PrivateKey(String alias) {
-        PrivateKey priv = this.getPrivateKey(alias);
+    public static byte[] getPkcs1PrivateKey(Context context, String alias) {
+        PrivateKey priv = KeyManager.getPrivateKey(context, alias);
 
         byte[] privBytes = priv.getEncoded();
 
@@ -208,7 +205,7 @@ public class KeyManager {
 
     /* Helper methods */
 
-    public byte[] signMessageUsingSHA1(String keyAlias, String message) {
+    public static byte[] signMessageUsingSHA1(Context context, String keyAlias, String message) {
 
 
         /*Provider[] providers = Security.getProviders();
@@ -223,7 +220,7 @@ public class KeyManager {
         byte []signed = new byte[0];
         try {
             Signature instance = Signature.getInstance("SHA1WithRSAEncryption","BC");
-            instance.initSign(this.getPrivateKey(keyAlias));
+            instance.initSign(KeyManager.getPrivateKey(context, keyAlias));
             instance.update(message.getBytes());
             signed = instance.sign();
 
@@ -243,11 +240,11 @@ public class KeyManager {
     }*/
 
 
-    public boolean verify(byte[] bytes, String keyAlias) {
+    public static boolean verify(Context context, byte[] bytes, String keyAlias) {
         Boolean result = true;
         try {
             Signature signature = Signature.getInstance("SHA1WithRSAEncryption","BC");
-            signature.initVerify(this.getPublicKey(keyAlias));
+            signature.initVerify(KeyManager.getPublicKey(context, keyAlias));
             result = signature.verify(bytes);
         } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException | NoSuchProviderException e) {
             e.printStackTrace();

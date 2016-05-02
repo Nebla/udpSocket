@@ -30,20 +30,22 @@ public class ServiceManager {
         //alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, firstMillis, intervalMillis, pIntent);
 
         //A new execution is set
-        AlarmManager mAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        AlarmManager alarm = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent mIntent = new Intent(context, UdpService.class);
         mIntent.putExtra("installation",installation);
 
-        PendingIntent mPendingIntent = PendingIntent.getService(context, 0,  mIntent, PendingIntent.FLAG_ONE_SHOT);
-        mAlarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, firstMillis, intervalMillis, mPendingIntent);
+        PendingIntent pendingIntent = PendingIntent.getService(context, 0,  mIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, firstMillis, intervalMillis, pendingIntent);
 
     }
 
     static public void stopService(Context context) {
-        Intent intent = new Intent(context, AlarmReceiver.class);
-        final PendingIntent pIntent = PendingIntent.getBroadcast(context, AlarmReceiver.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarm = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        alarm.cancel(pIntent);
+
+        Intent intent = new Intent(context, UdpService.class);
+        PendingIntent pendingIntent = PendingIntent.getService(context, 0,  intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        alarm.cancel(pendingIntent);
     }
 
     private boolean isServiceRunning(Context context, Class<?> serviceClass) {
