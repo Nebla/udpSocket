@@ -21,6 +21,5 @@ public class BootBroadcastReceiver extends BroadcastReceiver {
         else {
             Log.i("BootBroadcastReceiver", "Installation NOT found");
         }
-
     }
 }

@@ -54,29 +54,39 @@ public class KeyManager {
     }
 
     /* Key generation */
-    public void generateKeys(String alias) {
-
+    public boolean generateKeys(String alias) {
+        boolean success = true;
+        DataOutputStream outputStream = null;
         try {
             KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
             kpg.initialize(512);
             KeyPair keyPair = kpg.generateKeyPair();
 
             // Save the private key
-            DataOutputStream out = new DataOutputStream(this.context.openFileOutput(alias, Context.MODE_PRIVATE));
+            outputStream = new DataOutputStream(this.context.openFileOutput(alias, Context.MODE_PRIVATE));
             byte[] data = keyPair.getPrivate().getEncoded();
-            out.write(data);
-            out.close();
+            outputStream.write(data);
 
             // Save the public key
             String pubKeyFile = alias + ".pub";
-            out = new DataOutputStream(this.context.openFileOutput(pubKeyFile, Context.MODE_PRIVATE));
+            outputStream = new DataOutputStream(this.context.openFileOutput(pubKeyFile, Context.MODE_PRIVATE));
             data = keyPair.getPublic().getEncoded();
-            out.write(data);
-            out.close();
+            outputStream.write(data);
 
         } catch (IOException | NoSuchAlgorithmException e) {
             e.printStackTrace();
+            success = false;
+        } finally {
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
         }
+        return success;
     }
 
     /* Public key */
@@ -93,10 +103,19 @@ public class KeyManager {
             X509EncodedKeySpec keySpec = new X509EncodedKeySpec(data);
             KeyFactory kf = KeyFactory.getInstance("RSA");
             pubKey = kf.generatePublic(keySpec);
-            in.close();
+
         } catch (InvalidKeySpecException | IOException | NoSuchAlgorithmException e) {
             e.printStackTrace();
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
+
 
         return pubKey;
     }
@@ -123,11 +142,17 @@ public class KeyManager {
         PemWriter pemWriter = new PemWriter(stringWriter);
         try {
             pemWriter.writeObject(pemObject);
-            pemWriter.close();
-
         } catch (IOException e) {
             e.printStackTrace();
         }
+        finally {
+            try {
+                pemWriter.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         return stringWriter.toString();
     }
 
@@ -139,19 +164,26 @@ public class KeyManager {
     /* Private Key */
     public PrivateKey getPrivateKey (String alias) {
         PrivateKey privKey = null;
-        DataInputStream in= null;
+        DataInputStream inputStream = null;
         try {
-            in = new DataInputStream(this.context.openFileInput(alias));
-            byte[] data = new byte[in.available()];
-            in.readFully(data);
+            inputStream = new DataInputStream(this.context.openFileInput(alias));
+            byte[] data = new byte[inputStream.available()];
+            inputStream.readFully(data);
 
             PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(data);
             KeyFactory kf = KeyFactory.getInstance("RSA");
             privKey = kf.generatePrivate(keySpec);
 
-            in.close();
         } catch (InvalidKeySpecException | IOException | NoSuchAlgorithmException e) {
             e.printStackTrace();
+        } finally {
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         return privKey;
     }

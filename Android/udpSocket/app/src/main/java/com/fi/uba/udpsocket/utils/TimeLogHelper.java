@@ -17,10 +17,10 @@ import java.util.Locale;
 public class TimeLogHelper {
 
     public static String readLogTimeFile(Context context, String fileName) {
-
+        FileInputStream inputStream = null;
         StringBuilder builder = new StringBuilder("");
         try {
-            FileInputStream inputStream = context.openFileInput(fileName);
+            inputStream = context.openFileInput(fileName);
             InputStreamReader isr = new InputStreamReader(inputStream);
             BufferedReader bufferedReader = new BufferedReader(isr);
             String line;
@@ -28,11 +28,19 @@ public class TimeLogHelper {
                 builder.append(line);
                 builder.append(System.getProperty("line.separator"));
             }
-            inputStream.close();
         }
         catch (IOException e) {
             Log.e("TimeLogHelper - read", e.getMessage());
             e.printStackTrace();
+        }
+        finally {
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         String result = builder.toString();
         Log.i("Time Log - Read:",result);
@@ -41,7 +49,7 @@ public class TimeLogHelper {
 
     public static void logTimeMessage(Context context, String fileName, String message) {
 
-        FileOutputStream outputStream;
+        FileOutputStream outputStream = null;
 
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy|kk:mm:ss,S000", Locale.getDefault());
         String currentDateandTime = sdf.format(new Date());
@@ -52,11 +60,19 @@ public class TimeLogHelper {
         try {
             outputStream = context.openFileOutput(fileName, Context.MODE_APPEND);
             outputStream.write(log.getBytes());
-            outputStream.close();
         }
         catch (IOException e) {
             Log.e("TimeLogHelper - log", e.getMessage());
             e.printStackTrace();
+        }
+        finally {
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
