@@ -1,6 +1,5 @@
 package com.fi.uba.udpsocket.screens.installations;
 
-import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -107,7 +106,6 @@ public class InstallationsActivity extends ActionBarActivity {
     public void testKeys (String newInstallationName) {
         EditText text = (EditText) findViewById(R.id.installation_name_text);
         String testString = text.getText().toString();
-
 
         byte[] encryptedBytes = null;
         Cipher cipher = null;
