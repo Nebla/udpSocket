@@ -1,10 +1,6 @@
 package com.fi.uba.udpsocket;
 
 import android.app.Activity;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -12,12 +8,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 
-import com.fi.uba.udpsocket.service.AlarmReceiver;
 import com.fi.uba.udpsocket.service.ServiceManager;
 import com.fi.uba.udpsocket.utils.KeyManager;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 public class UdpActivity extends Activity {
     public final static String EXTRA_MESSAGE = "com.fi.uba.udpSocket.MESSAGE";
@@ -41,15 +33,10 @@ public class UdpActivity extends Activity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
+        return id == R.id.action_settings || super.onOptionsItemSelected(item);
     }
 
-    /** Called when the user clicks the Send button */
+    /* Called when the user clicks the Send button */
     public void sendMessage(View view) {
 
         EditText editText = (EditText) findViewById(R.id.edit_message);
@@ -71,7 +58,6 @@ public class UdpActivity extends Activity {
         EditText editText = (EditText) findViewById(R.id.edit_message);
         String instName = editText.getText().toString();
 
-
         KeyManager.generateKeys(getApplicationContext(), instName);
 
         String result = KeyManager.getBase64EncodedPemPublicKey(getApplicationContext(), instName);
@@ -79,80 +65,10 @@ public class UdpActivity extends Activity {
     }
 
     public void startService(View view) {
-
         ServiceManager.startService(getApplicationContext(),"TestInstallation");
-        /*Log.i("UdpActivity","Starting service");
-
-        EditText editText = (EditText) findViewById(R.id.edit_message);
-        String instName = editText.getText().toString();
-
-        EditText portText = (EditText) findViewById(R.id.edit_port);
-        String portString = portText.getText().toString();
-        int port;
-        try {
-            port = Integer.parseInt(portString);
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-            Log.e("UdpActivity", "Invalid port number");
-            return;
-        }
-
-        EditText ipText = (EditText) findViewById(R.id.edit_address);
-        String ipAddress = ipText.getText().toString();
-        try {
-            InetAddress.getByName(ipAddress);
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-            Log.e("UdpActivity", "Invalid ip address");
-            return;
-        }
-
-
-        // Construct an intent that will execute the AlarmReceiver
-        Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
-
-        intent.putExtra("address",ipAddress);
-        intent.putExtra("port",port);
-
-        intent.putExtra("installation",instName);
-
-        // Create a PendingIntent to be triggered when the alarm goes off
-        final PendingIntent pIntent = PendingIntent.getBroadcast(this, AlarmReceiver.REQUEST_CODE,
-                intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        // Setup periodic alarm every 1 second
-        long firstMillis = System.currentTimeMillis(); // first run of alarm is immediate
-        int intervalMillis = 1000; // 1 second
-        AlarmManager alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-        alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, firstMillis, intervalMillis, pIntent);*/
     }
 
     public void stopService(View view) {
         ServiceManager.stopService(getApplicationContext());
-        /*Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
-        final PendingIntent pIntent = PendingIntent.getBroadcast(this, AlarmReceiver.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        AlarmManager alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-        alarm.cancel(pIntent);*/
-
-        /* Test generated file
-        TextView textView = (TextView) findViewById(R.id.fileTest);
-        StringBuilder builder = null;
-        BufferedReader bufferedReader = null;
-        try {
-            bufferedReader = new BufferedReader(new FileReader(new
-                    File(getFilesDir()+ File.separator+"saraza")));
-
-            String read;
-            builder = new StringBuilder("");
-            while((read = bufferedReader.readLine()) != null){
-                builder.append(read);
-            }
-            bufferedReader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        Log.d("Output", builder.toString());
-        textView.setText(builder.toString());*/
     }
 }

@@ -4,23 +4,18 @@ import android.app.AlarmManager;
 import android.app.IntentService;
 
 import android.app.PendingIntent;
-import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.os.IBinder;
-import android.support.annotation.Nullable;
 import android.util.Base64;
 import android.util.Log;
 
 import com.fi.uba.udpsocket.domain.PingStatus;
-import com.fi.uba.udpsocket.service.AlarmReceiver;
 import com.fi.uba.udpsocket.utils.KeyManager;
 import com.fi.uba.udpsocket.utils.StringHelper;
 import com.fi.uba.udpsocket.utils.TimeHelper;
 import com.fi.uba.udpsocket.utils.TimeLogHelper;
 
 import java.io.IOException;
-import java.io.InterruptedIOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -197,9 +192,6 @@ public class UdpService extends IntentService {
 
     private void cancelOnError(String errorMessage) {
         Log.e(logTag, errorMessage);
-        Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
-        final PendingIntent pIntent = PendingIntent.getBroadcast(this, AlarmReceiver.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        AlarmManager alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-        alarm.cancel(pIntent);
+        ServiceManager.stopService(getApplicationContext());
     }
 }

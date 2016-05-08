@@ -46,12 +46,8 @@
             android:name=".service.UdpService"
             android:exported="false" />
 
-        <receiver
-            android:name=".service.AlarmReceiver"
-            android:process=":remote" />
-
         <!-- Declaring broadcast receiver for BOOT_COMPLETED event. -->
-        <receiver android:name=".service.BootBroadcastReceiver"
+        <receiver android:name=".receiver.BootBroadcastReceiver"
             android:enabled="true"
             android:exported="false">
             <intent-filter>
@@ -60,7 +56,7 @@
         </receiver>
 
         <!-- Declaring broadcast receiver for CONNECTIVITY_ACTION event. -->
-        <receiver android:name=".service.ConnectivityBroadcastReceiver"
+        <receiver android:name=".receiver.ConnectivityBroadcastReceiver"
             android:enabled="true"
             android:exported="false">
             <intent-filter>

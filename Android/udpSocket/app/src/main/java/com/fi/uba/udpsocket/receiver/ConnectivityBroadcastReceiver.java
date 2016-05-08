@@ -1,4 +1,4 @@
-package com.fi.uba.udpsocket.service;
+package com.fi.uba.udpsocket.receiver;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

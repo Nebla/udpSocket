@@ -18,7 +18,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.fi.uba.udpsocket.service.AlarmReceiver;
 import com.fi.uba.udpsocket.R;
 import com.fi.uba.udpsocket.domain.User;
 import com.fi.uba.udpsocket.screens.login.LoginActivity;
@@ -153,7 +152,6 @@ public class InstallationsActivity extends ActionBarActivity {
     }
 
     private void showResult(String resultInstallationName) {
-
         EditText resultTextView = (EditText) findViewById(R.id.installation_name_text);
         String installationName = resultTextView.getText().toString();
 
@@ -175,31 +173,7 @@ public class InstallationsActivity extends ActionBarActivity {
     }
 
     public void stopService(View view) {
-        Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
-        final PendingIntent pIntent = PendingIntent.getBroadcast(this, AlarmReceiver.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        AlarmManager alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-        alarm.cancel(pIntent);
-
-        /* Test generated file
-        TextView textView = (TextView) findViewById(R.id.fileTest);
-        StringBuilder builder = null;
-        BufferedReader bufferedReader = null;
-        try {
-            bufferedReader = new BufferedReader(new FileReader(new
-                    File(getFilesDir()+ File.separator+"saraza")));
-
-            String read;
-            builder = new StringBuilder("");
-            while((read = bufferedReader.readLine()) != null){
-                builder.append(read);
-            }
-            bufferedReader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        Log.d("Output", builder.toString());
-        textView.setText(builder.toString());*/
+        ServiceManager.stopService(getApplicationContext());
     }
 
     private void showError(String errorMessage) {
