@@ -21,8 +21,9 @@ public class SplashActivity extends ActionBarActivity {
         SharedPreferences prefs = getSharedPreferences("InstallationPreferences", MODE_PRIVATE);
         String installationName = prefs.getString("Installation", null);
         if (installationName != null) {
+
             // Start the service if it's not already running
-            //ServiceManager.startService(getApplicationContext(), installationName);
+            ServiceManager.startService(getApplicationContext(), installationName);
 
             // Show the installation status
             Intent intent = new Intent(this, CurrentInstallationActivity.class);

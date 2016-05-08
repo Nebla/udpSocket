@@ -57,11 +57,6 @@ public class InstallationsActivity extends ActionBarActivity {
         Intent i = getIntent();
         user = i.getParcelableExtra(LoginActivity.USER_MESSAGE);
 
-        /*TextView resultTextView = (TextView) findViewById(R.id.installation_name_text);
-        String userId = user.getId();
-        ArrayList<String> installations = user.getInstallations();
-        resultTextView.setText("Id: " + userId + "\nInstallations:\n " + TextUtils.join(", ", installations));*/
-
         ListView listView = (ListView) findViewById(R.id.installations_list);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_1, user.getInstallations());
@@ -177,9 +172,8 @@ public class InstallationsActivity extends ActionBarActivity {
     }
 
     private void showError(String errorMessage) {
-        Context context = getApplicationContext();
         int duration = Toast.LENGTH_SHORT;
-        Toast toast = Toast.makeText(context, errorMessage, duration);
+        Toast toast = Toast.makeText(getApplicationContext(), errorMessage, duration);
         toast.show();
     }
 

@@ -14,10 +14,6 @@ public class CurrentInstallationActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_current_installation);
-
-        SharedPreferences prefs = getSharedPreferences("InstallationPreferences", MODE_PRIVATE);
-        String installationName = prefs.getString("Installation", null);
-        ServiceManager.startService(getApplicationContext(),installationName);
     }
 
     public void stopService(View view) {
