@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.fi.uba.udpsocket.service.ServiceManager;
+
 public class BootBroadcastReceiver extends BroadcastReceiver {
 
     @Override
@@ -16,7 +18,7 @@ public class BootBroadcastReceiver extends BroadcastReceiver {
         if (installationName != null) {
             // Show the installation status
             Log.i("BootBroadcastReceiver", "Installation "+installationName+" found");
-            //ServiceManager.startService(context,installationName);
+            ServiceManager.startService(context, installationName);
         }
         else {
             Log.i("BootBroadcastReceiver", "Installation NOT found");
