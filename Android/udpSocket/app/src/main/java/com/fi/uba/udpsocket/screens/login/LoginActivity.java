@@ -81,18 +81,14 @@ public class LoginActivity extends ActionBarActivity {
 
             Intent intent = new Intent(this, InstallationsActivity.class);
             intent.putExtra(USER_MESSAGE, user);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME);
             startActivity(intent);
-
-            //TextView resultTextView = (TextView) findViewById(R.id.json_response_text);
-            //String userId = user.getId();
-            //ArrayList<String> installations = user.getInstallations();
-            //resultTextView.setText("Id: " + userId + "\nInstallations:\n " + TextUtils.join(", ", installations));
+            this.finish();
         }
         else {
-            Context context = getApplicationContext();
-            CharSequence text = "Usuario o contraseña invalidos";
+            CharSequence text = "The user or password is invalid.";
             int duration = Toast.LENGTH_SHORT;
-            Toast toast = Toast.makeText(context, text, duration);
+            Toast toast = Toast.makeText(getApplicationContext(), text, duration);
             toast.show();
         }
     }
