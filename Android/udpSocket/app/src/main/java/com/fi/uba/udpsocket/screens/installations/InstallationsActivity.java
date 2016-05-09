@@ -1,10 +1,6 @@
 package com.fi.uba.udpsocket.screens.installations;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -23,6 +19,7 @@ import com.fi.uba.udpsocket.domain.User;
 import com.fi.uba.udpsocket.screens.login.LoginActivity;
 import com.fi.uba.udpsocket.service.ServiceManager;
 import com.fi.uba.udpsocket.utils.KeyManager;
+import com.fi.uba.udpsocket.utils.PreferencesWrapper;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -75,7 +72,7 @@ public class InstallationsActivity extends ActionBarActivity {
         String newInstallationName = resultTextView.getText().toString();
         if (newInstallationName.isEmpty()) {
             // Fist we check for an empty name
-            showError("El nombre de la instalación no puede ser vacio");
+            showError("The installation name can't be empty.");
         }
         else {
             boolean found = false;
@@ -87,7 +84,7 @@ public class InstallationsActivity extends ActionBarActivity {
             }
             if (found) {
                 // Here we check if there is already an installation with the same name
-                showError("Ya existe una instalación con ese nombre");
+                showError("You already have an installation with the name \""+newInstallationName+"\"");
             }
             else {
                 // If the name isn't empty neither repeated, we create a new installation
@@ -107,15 +104,7 @@ public class InstallationsActivity extends ActionBarActivity {
             cipher = Cipher.getInstance("RSA");
             cipher.init(Cipher.ENCRYPT_MODE, KeyManager.getPublicKey(getApplicationContext(), newInstallationName));
             encryptedBytes = cipher.doFinal(testString.getBytes());
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        } catch (BadPaddingException e) {
-            e.printStackTrace();
-        } catch (IllegalBlockSizeException e) {
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
             e.printStackTrace();
         }
 
@@ -125,15 +114,7 @@ public class InstallationsActivity extends ActionBarActivity {
             decipher = Cipher.getInstance("RSA");
             decipher.init(Cipher.DECRYPT_MODE, KeyManager.getPrivateKey(getApplicationContext(), newInstallationName));
             result = decipher.doFinal(encryptedBytes);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        } catch (BadPaddingException e) {
-            e.printStackTrace();
-        } catch (IllegalBlockSizeException e) {
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
             e.printStackTrace();
         }
 
@@ -147,28 +128,33 @@ public class InstallationsActivity extends ActionBarActivity {
     }
 
     private void showResult(String resultInstallationName) {
-        EditText resultTextView = (EditText) findViewById(R.id.installation_name_text);
-        String installationName = resultTextView.getText().toString();
+        if (resultInstallationName != null) {
+            PreferencesWrapper.setInstallation(getApplicationContext(), resultInstallationName);
+            ServiceManager.startService(getApplicationContext(), resultInstallationName);
 
-        SharedPreferences.Editor editor = getSharedPreferences("InstallationPreferences", MODE_PRIVATE).edit();
-        editor.putString("Installation", installationName);
-        editor.apply();
-
-        ServiceManager.startService(getApplicationContext(), installationName);
+            Intent intent = new Intent(this, CurrentInstallationActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME);
+            startActivity(intent);
+            this.finish();
+        }
+        else {
+            // There was an error creating the installation, we should remove the recently created key pair
+            EditText resultTextView = (EditText) findViewById(R.id.installation_name_text);
+            String newInstallationName = resultTextView.getText().toString();
+            KeyManager.removeKeys(getApplicationContext(), newInstallationName);
+            showError("There was an error creating the installation, please try again.");
+        }
     }
 
-
-    private void startService(View view) {
-        EditText resultTextView = (EditText) findViewById(R.id.installation_name_text);
-        String newInstallationName = resultTextView.getText().toString();
-
-        Log.i("UdpActivity","Starting service");
-        ServiceManager.startService(getApplicationContext(),newInstallationName);
-
-    }
-
-    public void stopService(View view) {
-        ServiceManager.stopService(getApplicationContext());
+    private void createNewInstallation(String newInstallationName) {
+        boolean success = KeyManager.generateKeys(getApplicationContext(), newInstallationName);
+        if (success) {
+            String encodedPublicKey = KeyManager.getBase64EncodedPemPublicKey(getApplicationContext(), newInstallationName);
+            AsyncTask task = new CreateInstallationAsyncTask().execute(user.getId(), user.getPassword(), newInstallationName, encodedPublicKey);
+        }
+        else {
+            showError("There was an error creating the RSA key pair");
+        }
     }
 
     private void showError(String errorMessage) {
@@ -177,17 +163,9 @@ public class InstallationsActivity extends ActionBarActivity {
         toast.show();
     }
 
-    private void createNewInstallation(String newInstallationName) {
-
-        KeyManager.generateKeys(getApplicationContext(), newInstallationName);
-        String encodedPublicKey = KeyManager.getBase64EncodedPemPublicKey(getApplicationContext(), newInstallationName);
-
-        AsyncTask task = new CreateInstallationAsyncTask().execute(user.getId(), user.getPassword(), newInstallationName, encodedPublicKey);
-
-    }
-
-
     private class CreateInstallationAsyncTask extends AsyncTask<String, Void, String> {
+
+        private final String logTag = CreateInstallationAsyncTask.class.getSimpleName();
 
         AndroidHttpClient httpClient = AndroidHttpClient.newInstance("");
 
@@ -196,7 +174,7 @@ public class InstallationsActivity extends ActionBarActivity {
 
         @Override
         protected String doInBackground(String... params) {
-            Log.i(CreateInstallationAsyncTask.class.toString(), "Create new installation for user: " + params[0]);
+            Log.i(logTag, "Create new installation for user: " + params[0]);
 
             String userId = params[0];
             String userPassword = params[1];
@@ -225,10 +203,6 @@ public class InstallationsActivity extends ActionBarActivity {
                 httpPostRequest.setEntity(new StringEntity(postBody, "UTF8"));
                 JSONResponseHandler responseHandler = new JSONResponseHandler();
                 result = httpClient.execute(httpPostRequest, responseHandler);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (IllegalStateException e) {
-                e.printStackTrace();
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
@@ -246,7 +220,7 @@ public class InstallationsActivity extends ActionBarActivity {
 
         private class JSONResponseHandler implements ResponseHandler<String> {
 
-            private final String INSTALLATION_TAG = "installations";
+            private final String INSTALLATION_NAME_TAG = "installations";
 
             @Override
             public String handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
@@ -260,8 +234,10 @@ public class InstallationsActivity extends ActionBarActivity {
                     /*{"id":50,"installations":"Installation: prueba4","name":"adrianmdu@gmail.com"}*/
                     JSONObject root = (JSONObject) new JSONTokener(JSONResponse).nextValue();
 
-                    if (root.has(INSTALLATION_TAG)) {
-                        installationName = root.getString(INSTALLATION_TAG);
+                    if (root.has(INSTALLATION_NAME_TAG)) {
+                        installationName = root.getString(INSTALLATION_NAME_TAG);
+                        installationName = installationName.split(":")[1];
+                        installationName = installationName.trim();
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
