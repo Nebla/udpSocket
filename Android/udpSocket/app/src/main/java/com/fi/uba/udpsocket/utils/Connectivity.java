@@ -1,4 +1,4 @@
-package com.emil.android.util;
+package com.fi.uba.udpsocket.utils;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
