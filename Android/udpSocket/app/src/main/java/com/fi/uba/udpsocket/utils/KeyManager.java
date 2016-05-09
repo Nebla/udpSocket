@@ -4,14 +4,12 @@ package com.fi.uba.udpsocket.utils;
  * Created by adrian on 08/06/15.
  */
 
-import android.app.Activity;
 import android.content.Context;
 import android.util.Base64;
 import android.util.Log;
 
 import org.spongycastle.asn1.ASN1Encodable;
 import org.spongycastle.asn1.ASN1Primitive;
-
 import org.spongycastle.asn1.pkcs.PrivateKeyInfo;
 import org.spongycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.spongycastle.util.io.pem.PemObject;
@@ -19,34 +17,24 @@ import org.spongycastle.util.io.pem.PemWriter;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringWriter;
+
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
-import java.security.Provider;
 import java.security.PublicKey;
-import java.security.Security;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.Set;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 
 public class KeyManager {
-
 
     private KeyManager(){
     }
@@ -85,6 +73,12 @@ public class KeyManager {
             }
         }
         return success;
+    }
+
+    public static void removeKeys(Context context, String alias) {
+        context.deleteFile(alias);
+        String pubKeyFile = alias + ".pub";
+        context.deleteFile(pubKeyFile);
     }
 
     /* Public key */
