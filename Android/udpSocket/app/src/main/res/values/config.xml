@@ -5,4 +5,8 @@
     <string name="tix_login_account_url">bin/api/authenticate</string>
     <string name="tix_create_account_url">bin/account/register</string>
     <string name="tix_create_installation_url">bin/api/newInstallationPost</string>
+
+    <string name="tix_ip_address">200.10.202.29</string>
+    <integer name="tix_udp_port">80</integer>
+
 </resources>

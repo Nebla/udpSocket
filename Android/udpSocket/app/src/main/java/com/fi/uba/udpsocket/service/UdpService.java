@@ -1,14 +1,12 @@
 package com.fi.uba.udpsocket.service;
 
-import android.app.AlarmManager;
 import android.app.IntentService;
 
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.util.Base64;
 import android.util.Log;
 
+import com.fi.uba.udpsocket.R;
 import com.fi.uba.udpsocket.domain.PingStatus;
 import com.fi.uba.udpsocket.utils.KeyManager;
 import com.fi.uba.udpsocket.utils.StringHelper;
@@ -30,6 +28,7 @@ public class UdpService extends IntentService {
     // Constants
     private static final String logTag = UdpService.class.getSimpleName();
     private static final String logFileBase = "log";
+
     private static final int longMessageSize = 4399;
 
     public UdpService() {
@@ -48,8 +47,8 @@ public class UdpService extends IntentService {
 
         PingStatus.getInstance().updateValues();
 
-        String address = "200.10.202.29";
-        int port = 80;
+        String address = getResources().getString(R.string.tix_ip_address);
+        int port = getResources().getInteger(R.integer.tix_udp_port);
         //String address = "10.0.3.2";
         //int port = 10000;
 
@@ -74,7 +73,7 @@ public class UdpService extends IntentService {
 
             String longMessage = this.longMessage(installationName, lastFileName); //rellenoLargo(4400, check, str(told), logfile);
             message = t1 + "!!" + t2 + "!!" + t3 + "!!" + t4 + "!!" + longMessage;
-            Log.i("Udp Service - Largo", "Size: "+String.valueOf(message.getBytes().length) + " Mensaje: " + message);
+            Log.i(logTag, "Largo Size: "+String.valueOf(message.getBytes().length) + " Mensaje: " + message);
 
             // We check if we need to remove the log file because is already going to be sent in the next message
             if (PingStatus.getInstance().shouldSendSavedData()) {
@@ -86,7 +85,7 @@ public class UdpService extends IntentService {
         } else {
             // Short message
             message = t1 + "!!" + t2 + "!!" + t3 + "!!" + t4;
-            Log.i("Udp Service - Corto", "Size: "+String.valueOf(message.getBytes().length) + " Mensaje: " + message);
+            Log.i(logTag, "Corto Size: "+String.valueOf(message.getBytes().length) + " Mensaje: " + message);
         }
 
         // Server response
@@ -150,7 +149,6 @@ public class UdpService extends IntentService {
 
             String messageBase64Encoded = Base64.encodeToString(fileMessage.getBytes(), Base64.NO_WRAP);
 
-
             /*Log.i("UdpService - Encoded public",PEMPublicKeyBase64Encoded);
 
             Log.i("UdpService - Sign",String.valueOf(sign));
@@ -192,6 +190,7 @@ public class UdpService extends IntentService {
 
     private void cancelOnError(String errorMessage) {
         Log.e(logTag, errorMessage);
-        ServiceManager.stopService(getApplicationContext());
+        //TODO: Broadcast message to notify the UI
+        //ServiceManager.stopService(getApplicationContext());
     }
 }
