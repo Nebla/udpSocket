@@ -1,5 +1,6 @@
 package com.fi.uba.udpsocket.utils;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.io.InputStreamReader;
 import java.io.FileOutputStream;
@@ -15,6 +16,8 @@ import java.util.Locale;
  * Created by adrian on 09/04/16.
  */
 public class TimeLogHelper {
+
+    public static final String logFileBase = "log";
 
     public static String readLogTimeFile(Context context, String fileName) {
         FileInputStream inputStream = null;
@@ -78,5 +81,15 @@ public class TimeLogHelper {
 
     public static boolean deleteFile(Context context, String fileName) {
         return context.deleteFile(fileName);
+    }
+
+    public static void deleteAllFiles(Context context) {
+
+        String directory = context.getApplicationInfo().dataDir;
+
+        for(File f: context.getFilesDir().listFiles()) {
+            if (f.getName().startsWith(logFileBase))
+                context.deleteFile(f.getName());
+        }
     }
 }

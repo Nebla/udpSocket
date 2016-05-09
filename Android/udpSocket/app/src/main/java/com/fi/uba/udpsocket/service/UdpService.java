@@ -27,7 +27,6 @@ public class UdpService extends IntentService {
 
     // Constants
     private static final String logTag = UdpService.class.getSimpleName();
-    private static final String logFileBase = "log";
 
     private static final int longMessageSize = 4399;
 
@@ -78,7 +77,7 @@ public class UdpService extends IntentService {
             // We check if we need to remove the log file because is already going to be sent in the next message
             if (PingStatus.getInstance().shouldSendSavedData()) {
                 // The current data is being sent, so we need to delete lastFile
-                String logFileName = logFileBase + "_" + lastFileName;
+                String logFileName = TimeLogHelper.logFileBase + "_" + lastFileName;
                 Log.i("Udp Service", "Deleting log message: "+logFileName);
                 TimeLogHelper.deleteFile(this.getApplicationContext(), logFileName);
             }
@@ -128,7 +127,7 @@ public class UdpService extends IntentService {
         Integer udpHeader = 8; // udp header length (min. 8 bytes)
         String packetLength = String.valueOf(ipHeader + udpHeader + payload);
 
-        String logFileName = logFileBase + "_" + PingStatus.getInstance().currentFileName();
+        String logFileName = TimeLogHelper.logFileBase + "_" + PingStatus.getInstance().currentFileName();
         TimeLogHelper.logTimeMessage(this.getApplicationContext(), logFileName, "|" + packetLength + "|" + data);
 
         Log.i(logTag, "Finished");
@@ -138,7 +137,7 @@ public class UdpService extends IntentService {
         String longMessage = StringHelper.randomString(longMessageSize);
         if (PingStatus.getInstance().shouldSendSavedData()) {
             // Content of the log message
-            String logFileName = logFileBase + "_" + told;
+            String logFileName = TimeLogHelper.logFileBase + "_" + told;
             String fileMessage = TimeLogHelper.readLogTimeFile(this.getApplicationContext(), logFileName);
 
             // We need both the public and private keys generated during the installation
