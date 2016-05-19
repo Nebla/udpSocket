@@ -2,4 +2,7 @@
 <resources>
     <string name="preferences_name">InstallationPreferences</string>
     <string name="installation_key">Installation</string>
+    <string name="timeout_key">Timeouts</string>
+    <string name="packet_key">Packets</string>
+
 </resources>

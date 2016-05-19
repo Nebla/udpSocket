@@ -41,6 +41,56 @@ public class PreferencesWrapper {
 
     }
 
+    public static Integer increaseTimeoutCount(Context context) {
+        Integer timeouts = getInteger(context,
+                context.getString(R.string.preferences_name),
+                context.getString(R.string.timeout_key));
+
+        PreferencesWrapper.setInteger(context,
+                context.getString(R.string.preferences_name),
+                context.getString(R.string.timeout_key),
+                timeouts+1);
+
+        return timeouts + 1;
+    }
+
+    public static void removeTimeouts(Context context) {
+        PreferencesWrapper.removeValue(context,
+                context.getString(R.string.preferences_name),
+                context.getString(R.string.timeout_key));
+    }
+
+    public static Integer increasePacketCount(Context context) {
+        Integer packets = getInteger(context,
+                context.getString(R.string.preferences_name),
+                context.getString(R.string.packet_key));
+
+        PreferencesWrapper.setInteger(context,
+                context.getString(R.string.preferences_name),
+                context.getString(R.string.packet_key),
+                packets+1);
+
+        return packets + 1;
+    }
+
+    public static void removePackets(Context context) {
+        PreferencesWrapper.removeValue(context,
+                context.getString(R.string.preferences_name),
+                context.getString(R.string.packet_key));
+    }
+
+    public static void setInteger(Context context, String preferencesName, String key, Integer value) {
+        SharedPreferences.Editor editor = context.getSharedPreferences(preferencesName, Context.MODE_PRIVATE).edit();
+        editor.putInt(key, value);
+        editor.apply();
+    }
+
+    public static Integer getInteger(Context context, String preferencesName, String key) {
+        SharedPreferences prefs = context.getSharedPreferences(preferencesName, Context.MODE_PRIVATE);
+        return prefs.getInt(key, 0);
+
+    }
+
     public static void removeValue(Context context, String preferencesName, String key) {
         SharedPreferences.Editor editor = context.getSharedPreferences(preferencesName, Context.MODE_PRIVATE).edit();
         editor.remove(key);
