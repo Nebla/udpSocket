@@ -17,6 +17,7 @@ import java.util.Locale;
  */
 public class TimeLogHelper {
 
+    private static final String logTag = TimeLogHelper.class.getSimpleName();
     public static final String logFileBase = "log";
 
     public static String readLogTimeFile(Context context, String fileName) {
@@ -33,7 +34,7 @@ public class TimeLogHelper {
             }
         }
         catch (IOException e) {
-            Log.e("TimeLogHelper - read", e.getMessage());
+            Log.e(logTag, "Read Error:" + e.getMessage());
             e.printStackTrace();
         }
         finally {
@@ -46,7 +47,7 @@ public class TimeLogHelper {
             }
         }
         String result = builder.toString();
-        Log.i("Time Log - Read:",result);
+        //Log.i("Time Log - Read:",result);
         return result;
     }
 
@@ -59,13 +60,13 @@ public class TimeLogHelper {
 
         String log = currentDateandTime + " " + message + "\n";
 
-        Log.i("Time Log - Log",log);
+        Log.i(logTag, "Log Message: "+log);
         try {
             outputStream = context.openFileOutput(fileName, Context.MODE_APPEND);
             outputStream.write(log.getBytes());
         }
         catch (IOException e) {
-            Log.e("TimeLogHelper - log", e.getMessage());
+            Log.e(logTag, "Log Error: "+ e.getMessage());
             e.printStackTrace();
         }
         finally {

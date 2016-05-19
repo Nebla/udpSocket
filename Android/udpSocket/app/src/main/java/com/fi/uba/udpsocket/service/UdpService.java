@@ -9,6 +9,7 @@ import android.util.Log;
 import com.fi.uba.udpsocket.R;
 import com.fi.uba.udpsocket.domain.PingStatus;
 import com.fi.uba.udpsocket.utils.KeyManager;
+import com.fi.uba.udpsocket.utils.PreferencesWrapper;
 import com.fi.uba.udpsocket.utils.StringHelper;
 import com.fi.uba.udpsocket.utils.TimeHelper;
 import com.fi.uba.udpsocket.utils.TimeLogHelper;
@@ -18,6 +19,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
 /**
@@ -32,15 +34,15 @@ public class UdpService extends IntentService {
 
     public UdpService() {
         super("UdpService");
-        Log.i(logTag,"Created");
+        //Log.i(logTag,"Created");
         setIntentRedelivery(true);
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
 
-        Log.i(logTag, "Launched");
-
+        //Log.i(logTag, "Launched");
+        Integer totalPackets = PreferencesWrapper.increasePacketCount(getApplicationContext());
         // We need the installation name in the service to get the key pair
         String installationName = intent.getStringExtra("installation");
 
@@ -72,19 +74,19 @@ public class UdpService extends IntentService {
 
             String longMessage = this.longMessage(installationName, lastFileName); //rellenoLargo(4400, check, str(told), logfile);
             message = t1 + "!!" + t2 + "!!" + t3 + "!!" + t4 + "!!" + longMessage;
-            Log.i(logTag, "Largo Size: "+String.valueOf(message.getBytes().length) + " Mensaje: " + message);
+            //Log.i(logTag, "Largo Size: "+String.valueOf(message.getBytes().length) + " Mensaje: " + message);
 
             // We check if we need to remove the log file because is already going to be sent in the next message
-            if (PingStatus.getInstance().shouldSendSavedData()) {
+            //if (PingStatus.getInstance().shouldSendSavedData()) {
                 // The current data is being sent, so we need to delete lastFile
-                String logFileName = TimeLogHelper.logFileBase + "_" + lastFileName;
-                Log.i("Udp Service", "Deleting log message: "+logFileName);
-                TimeLogHelper.deleteFile(this.getApplicationContext(), logFileName);
-            }
+                //String logFileName = TimeLogHelper.logFileBase + "_" + lastFileName;
+                //Log.i("Udp Service", "Deleting log message: "+logFileName);
+                // TimeLogHelper.deleteFile(this.getApplicationContext(), logFileName);
+            //}
         } else {
             // Short message
             message = t1 + "!!" + t2 + "!!" + t3 + "!!" + t4;
-            Log.i(logTag, "Corto Size: "+String.valueOf(message.getBytes().length) + " Mensaje: " + message);
+            //Log.i(logTag, "Corto Size: "+String.valueOf(message.getBytes().length) + " Mensaje: " + message);
         }
 
         // Server response
@@ -104,7 +106,15 @@ public class UdpService extends IntentService {
 
         try {
             socket.receive(packet);
-        } catch (IOException e) {
+        }
+        catch (SocketTimeoutException e) {
+            Integer timeouts = PreferencesWrapper.increaseTimeoutCount(getApplicationContext());
+            Log.e(logTag, "Timetouts: " + String.valueOf(timeouts));
+            Log.e(logTag, "Total: " + String.valueOf(totalPackets));
+            socket.close();
+            return;
+        }
+        catch (IOException e) {
             e.printStackTrace();
             socket.close();
             return;
@@ -130,7 +140,7 @@ public class UdpService extends IntentService {
         String logFileName = TimeLogHelper.logFileBase + "_" + PingStatus.getInstance().currentFileName();
         TimeLogHelper.logTimeMessage(this.getApplicationContext(), logFileName, "|" + packetLength + "|" + data);
 
-        Log.i(logTag, "Finished");
+        //Log.i(logTag, "Finished");
     }
 
     private String longMessage(String installationName, String told) {
@@ -174,7 +184,7 @@ public class UdpService extends IntentService {
             socket = new DatagramSocket();
             InetAddress ipAddress = InetAddress.getByName(address);
             socket.connect(ipAddress, port);
-            socket.setSoTimeout(900);
+            socket.setSoTimeout(2000);
         }
         catch (SocketException e) {
             e.printStackTrace();

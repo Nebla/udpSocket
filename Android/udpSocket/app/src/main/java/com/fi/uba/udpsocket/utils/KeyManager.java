@@ -36,6 +36,8 @@ import java.security.spec.X509EncodedKeySpec;
 
 public class KeyManager {
 
+    private static final String logTag = KeyManager.class.getSimpleName();
+
     private KeyManager(){
     }
 
@@ -222,7 +224,7 @@ public class KeyManager {
             e.printStackTrace();
         }
 
-        Log.i("Key Manager - Sign", byteArray2Hex(signed));
+        Log.i(logTag, "Sign" + byteArray2Hex(signed));
         return signed;
     }
 
