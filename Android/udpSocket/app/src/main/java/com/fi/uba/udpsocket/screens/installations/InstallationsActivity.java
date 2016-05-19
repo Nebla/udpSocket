@@ -18,6 +18,7 @@ import com.fi.uba.udpsocket.R;
 import com.fi.uba.udpsocket.domain.User;
 import com.fi.uba.udpsocket.screens.login.LoginActivity;
 import com.fi.uba.udpsocket.service.ServiceManager;
+import com.fi.uba.udpsocket.utils.Connectivity;
 import com.fi.uba.udpsocket.utils.KeyManager;
 import com.fi.uba.udpsocket.utils.PreferencesWrapper;
 
@@ -130,8 +131,10 @@ public class InstallationsActivity extends ActionBarActivity {
     private void showResult(String resultInstallationName) {
         if (resultInstallationName != null) {
             PreferencesWrapper.setInstallation(getApplicationContext(), resultInstallationName);
-            ServiceManager.startService(getApplicationContext(), resultInstallationName);
 
+            if (Connectivity.isConnectedMobile(getApplicationContext())) {
+                ServiceManager.startService(getApplicationContext(), resultInstallationName);
+            }
             Intent intent = new Intent(this, CurrentInstallationActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME);
             startActivity(intent);
